@@ -59,6 +59,30 @@ export async function POST(req: Request) {
       )
     }
 
+    // Check if course requires payment
+    if (course.price > 0) {
+      // Check if user has completed payment for this course
+      const payment = await prisma.payment.findFirst({
+        where: {
+          userId: session.user.id,
+          courseId,
+          status: "completed",
+        },
+      })
+
+      if (!payment) {
+        return NextResponse.json(
+          { 
+            error: "Payment required",
+            requiresPayment: true,
+            courseId,
+            price: course.price,
+          },
+          { status: 402 } // 402 Payment Required
+        )
+      }
+    }
+
     const enrollment = await prisma.enrollment.create({
       data: {
         studentId: session.user.id,

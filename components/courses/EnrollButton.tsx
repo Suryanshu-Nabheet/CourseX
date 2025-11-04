@@ -3,17 +3,27 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { CheckCircle2 } from "lucide-react"
+import { CheckCircle2, Lock, ShoppingCart } from "lucide-react"
 import { toast } from "@/lib/toast"
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner"
 
 interface EnrollButtonProps {
   courseId: string
+  courseSlug?: string
   isEnrolled: boolean
   userId?: string
+  price: number
+  courseTitle?: string
 }
 
-export function EnrollButton({ courseId, isEnrolled, userId }: EnrollButtonProps) {
+export function EnrollButton({ 
+  courseId, 
+  courseSlug,
+  isEnrolled, 
+  userId,
+  price,
+  courseTitle
+}: EnrollButtonProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -24,6 +34,13 @@ export function EnrollButton({ courseId, isEnrolled, userId }: EnrollButtonProps
       return
     }
 
+    // If course is paid, redirect to checkout
+    if (price > 0) {
+      router.push(`/checkout/${courseId}`)
+      return
+    }
+
+    // Free course enrollment
     setLoading(true)
     try {
       const response = await fetch("/api/enrollments", {
@@ -35,6 +52,10 @@ export function EnrollButton({ courseId, isEnrolled, userId }: EnrollButtonProps
       if (response.ok) {
         toast.success("Successfully enrolled!", "You now have access to all course materials.")
         router.refresh()
+      } else if (response.status === 402) {
+        // Payment required
+        const data = await response.json()
+        router.push(`/checkout/${courseId}`)
       } else {
         const data = await response.json()
         toast.error("Enrollment failed", data.error || "Please try again later.")
@@ -55,17 +76,25 @@ export function EnrollButton({ courseId, isEnrolled, userId }: EnrollButtonProps
     )
   }
 
+  const isPaid = price > 0
+
   return (
     <Button
       onClick={handleEnroll}
       disabled={loading || !userId}
       className="w-full"
       size="lg"
+      variant={isPaid ? "default" : "default"}
     >
       {loading ? (
         <>
           <LoadingSpinner size="sm" className="mr-2" />
-          Enrolling...
+          {isPaid ? "Processing..." : "Enrolling..."}
+        </>
+      ) : isPaid ? (
+        <>
+          <ShoppingCart className="mr-2 h-4 w-4" />
+          Buy Now - ${price.toFixed(2)}
         </>
       ) : (
         "Enroll Now (Free)"
@@ -73,4 +102,3 @@ export function EnrollButton({ courseId, isEnrolled, userId }: EnrollButtonProps
     </Button>
   )
 }
-

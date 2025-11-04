@@ -31,6 +31,7 @@ interface Course {
   introVideoUrl: string | null
   difficulty: string | null
   language: string | null
+  price: number
   published: boolean
   lessons: Lesson[]
 }
@@ -48,6 +49,7 @@ export function EditCourseForm({ course }: { course: Course }) {
       introVideoUrl: course.introVideoUrl || "",
       difficulty: course.difficulty || "",
       language: course.language || "",
+      price: course.price || 0,
       published: course.published,
     },
   })
@@ -212,6 +214,25 @@ export function EditCourseForm({ course }: { course: Course }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
+              <Label htmlFor="price">Price (USD) *</Label>
+              <Input
+                id="price"
+                type="number"
+                step="0.01"
+                min="0"
+                {...register("price", { required: true, valueAsNumber: true, min: 0 })}
+              />
+              <p className="text-xs text-gray-500 mt-1">Set to 0 for free courses</p>
+            </div>
+
+            <div>
+              <Label htmlFor="language">Language</Label>
+              <Input id="language" {...register("language")} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
               <Label htmlFor="thumbnailUrl">Thumbnail URL *</Label>
               <Input id="thumbnailUrl" {...register("thumbnailUrl", { required: true })} />
             </div>
@@ -220,11 +241,6 @@ export function EditCourseForm({ course }: { course: Course }) {
               <Label htmlFor="introVideoUrl">Intro Video URL</Label>
               <Input id="introVideoUrl" {...register("introVideoUrl")} />
             </div>
-          </div>
-
-          <div>
-            <Label htmlFor="language">Language</Label>
-            <Input id="language" {...register("language")} />
           </div>
         </CardContent>
       </Card>

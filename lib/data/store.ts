@@ -14,6 +14,9 @@ const COURSES_FILE = path.join(DATA_DIR, "courses.json")
 const LESSONS_FILE = path.join(DATA_DIR, "lessons.json")
 const ENROLLMENTS_FILE = path.join(DATA_DIR, "enrollments.json")
 const REVIEWS_FILE = path.join(DATA_DIR, "reviews.json")
+const PAYMENTS_FILE = path.join(DATA_DIR, "payments.json")
+const WISHLIST_FILE = path.join(DATA_DIR, "wishlist.json")
+const NOTES_FILE = path.join(DATA_DIR, "notes.json")
 
 // Helper functions to read/write JSON files
 function readFile<T>(filePath: string, defaultValue: T): T {
@@ -199,6 +202,108 @@ export const reviews = {
   count: (filter?: (review: any) => boolean) => {
     const all = reviews.getAll()
     return filter ? all.filter(filter).length : all.length
+  },
+}
+
+// Payment operations
+export const payments = {
+  getAll: () => readFile(PAYMENTS_FILE, []),
+  getById: (id: string) => payments.getAll().find((p: any) => p.id === id),
+  getByUserId: (userId: string) => 
+    payments.getAll().filter((p: any) => p.userId === userId),
+  getByCourseId: (courseId: string) => 
+    payments.getAll().filter((p: any) => p.courseId === courseId),
+  getByPaymentIntentId: (paymentIntentId: string) =>
+    payments.getAll().find((p: any) => p.paymentIntentId === paymentIntentId),
+  getByUserAndCourse: (userId: string, courseId: string) =>
+    payments.getAll().find((p: any) => p.userId === userId && p.courseId === courseId && p.status === "completed"),
+  create: (payment: any) => {
+    const payments = readFile(PAYMENTS_FILE, [])
+    payments.push(payment)
+    writeFile(PAYMENTS_FILE, payments)
+    return payment
+  },
+  update: (id: string, updates: any) => {
+    const payments = readFile(PAYMENTS_FILE, [])
+    const index = payments.findIndex((p: any) => p.id === id)
+    if (index !== -1) {
+      payments[index] = { ...payments[index], ...updates, updatedAt: new Date().toISOString() }
+      writeFile(PAYMENTS_FILE, payments)
+      return payments[index]
+    }
+    return null
+  },
+  updateByPaymentIntentId: (paymentIntentId: string, updates: any) => {
+    const payments = readFile(PAYMENTS_FILE, [])
+    const index = payments.findIndex((p: any) => p.paymentIntentId === paymentIntentId)
+    if (index !== -1) {
+      payments[index] = { ...payments[index], ...updates, updatedAt: new Date().toISOString() }
+      writeFile(PAYMENTS_FILE, payments)
+      return payments[index]
+    }
+    return null
+  },
+  count: (filter?: (payment: any) => boolean) => {
+    const all = payments.getAll()
+    return filter ? all.filter(filter).length : all.length
+  },
+}
+
+// Wishlist operations
+export const wishlist = {
+  getAll: () => readFile(WISHLIST_FILE, []),
+  getByUserId: (userId: string) => 
+    wishlist.getAll().filter((w: any) => w.userId === userId),
+  getByUserAndCourse: (userId: string, courseId: string) =>
+    wishlist.getAll().find((w: any) => w.userId === userId && w.courseId === courseId),
+  create: (item: any) => {
+    const wishlist = readFile(WISHLIST_FILE, [])
+    wishlist.push(item)
+    writeFile(WISHLIST_FILE, wishlist)
+    return item
+  },
+  delete: (userId: string, courseId: string) => {
+    const wishlist = readFile(WISHLIST_FILE, [])
+    const filtered = wishlist.filter((w: any) => !(w.userId === userId && w.courseId === courseId))
+    writeFile(WISHLIST_FILE, filtered)
+    return true
+  },
+  count: (filter?: (item: any) => boolean) => {
+    const all = wishlist.getAll()
+    return filter ? all.filter(filter).length : all.length
+  },
+}
+
+// Student Notes operations
+export const notes = {
+  getAll: () => readFile(NOTES_FILE, []),
+  getByUserId: (userId: string) => 
+    notes.getAll().filter((n: any) => n.userId === userId),
+  getByLesson: (lessonId: string) =>
+    notes.getAll().filter((n: any) => n.lessonId === lessonId),
+  getByUserAndLesson: (userId: string, lessonId: string) =>
+    notes.getAll().find((n: any) => n.userId === userId && n.lessonId === lessonId),
+  create: (note: any) => {
+    const notes = readFile(NOTES_FILE, [])
+    notes.push(note)
+    writeFile(NOTES_FILE, notes)
+    return note
+  },
+  update: (id: string, updates: any) => {
+    const notes = readFile(NOTES_FILE, [])
+    const index = notes.findIndex((n: any) => n.id === id)
+    if (index !== -1) {
+      notes[index] = { ...notes[index], ...updates, updatedAt: new Date().toISOString() }
+      writeFile(NOTES_FILE, notes)
+      return notes[index]
+    }
+    return null
+  },
+  delete: (id: string) => {
+    const notes = readFile(NOTES_FILE, [])
+    const filtered = notes.filter((n: any) => n.id !== id)
+    writeFile(NOTES_FILE, filtered)
+    return true
   },
 }
 

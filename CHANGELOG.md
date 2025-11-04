@@ -10,9 +10,9 @@ All notable changes to CourseX will be documented in this file.
 - **Feature-based component organization**: Components now organized by domain (landing, courses, dashboard, layout, shared)
 - **Barrel exports**: Clean imports using `index.ts` files in each feature folder
 - **Comprehensive documentation**: 
-  - `STRUCTURE.md` - Detailed project structure
-  - `ARCHITECTURE.md` - Architecture documentation
-  - `CONTRIBUTING.md` - Contribution guidelines
+  - `docs/STRUCTURE.md` - Detailed project structure
+  - `docs/ARCHITECTURE.md` - Architecture documentation
+  - `docs/CONTRIBUTING.md` - Contribution guidelines
   - Updated `README.md` with improved organization
 
 #### 🔄 Changed

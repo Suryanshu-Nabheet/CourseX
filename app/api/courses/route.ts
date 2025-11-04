@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     }
 
     const data = await req.json()
-    const { title, description, category, thumbnailUrl, introVideoUrl, difficulty, language, lessons } = data
+    const { title, description, category, thumbnailUrl, introVideoUrl, difficulty, language, price, lessons } = data
 
     if (!title || !description || !category || !thumbnailUrl) {
       return NextResponse.json(
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
         language: language || null,
         slug,
         instructorId: session.user.id,
-        price: 0,
+        price: price !== undefined ? parseFloat(price) : 0,
         published: false,
         lessons: lessons || [],
       },

@@ -213,7 +213,7 @@ This keeps the codebase organized and maintainable as it grows.
 ## 📚 Documentation Files
 
 - `README.md` - Main project documentation
-- `STRUCTURE.md` - This file (project structure)
-- `DATABASE_SETUP.md` - Database setup instructions
+- `docs/STRUCTURE.md` - This file (project structure)
+- `docs/DATABASE_SETUP.md` - Database setup instructions
 - `LOCAL_STORAGE.md` - Local storage documentation
 - `QUICK_START.md` - Quick start guide

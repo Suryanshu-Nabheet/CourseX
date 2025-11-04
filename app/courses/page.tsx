@@ -159,7 +159,7 @@ export default async function CoursesPage({
           </p>
           {categories.length === 0 && (
             <p className="text-sm text-gray-500">
-              See <code className="bg-gray-100 px-2 py-1 rounded">DATABASE_SETUP.md</code> for setup instructions.
+              See <code className="bg-gray-100 px-2 py-1 rounded">docs/DATABASE_SETUP.md</code> for setup instructions.
             </p>
           )}
         </div>

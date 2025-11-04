@@ -25,8 +25,11 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
 .env
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # vercel
 .vercel
@@ -35,12 +38,20 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# data files (local storage)
+# prisma
+prisma/migrations/
+
+# data files (for local storage)
 /data/*.json
 !data/.gitkeep
 
 # IDE
-.vscode
-.idea
+.vscode/
+.idea/
 *.swp
 *.swo
+*~
+
+# OS
+Thumbs.db
+.DS_Store

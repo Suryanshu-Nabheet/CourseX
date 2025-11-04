@@ -26,6 +26,7 @@ import { EnrollButton } from "@/components/courses/EnrollButton"
 import { ReviewSection } from "@/components/courses/ReviewSection"
 import { CourseVideoPlayer } from "@/components/courses/CourseVideoPlayer"
 import { ExpandableSection } from "@/components/courses/ExpandableSection"
+import { WishlistButton } from "@/components/courses/WishlistButton"
 
 async function getCourse(slug: string) {
   try {
@@ -158,22 +159,24 @@ export default async function CourseDetailPage({
               </div>
 
               <div className="flex items-center space-x-4 text-sm">
-                <span className="px-3 py-1 bg-green-600 text-white rounded-full font-medium">
-                  Enroll for Free
-                </span>
+                {course.price > 0 ? (
+                  <span className="px-3 py-1 bg-blue-600 text-white rounded-full font-medium">
+                    ${course.price.toFixed(2)}
+                  </span>
+                ) : (
+                  <span className="px-3 py-1 bg-green-600 text-white rounded-full font-medium">
+                    Free
+                  </span>
+                )}
                 <span className="text-gray-300">{course.lessons.length} {course.lessons.length === 1 ? 'lesson' : 'lessons'}</span>
               </div>
             </div>
 
             <div className="flex-shrink-0">
-              <Button
-                variant="outline"
+              <WishlistButton
+                courseId={course.id}
                 className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                size="sm"
-              >
-                <Heart className="mr-2 h-4 w-4" />
-                Wishlist
-              </Button>
+              />
             </div>
           </div>
         </div>
@@ -273,13 +276,27 @@ export default async function CourseDetailPage({
               <Card className="shadow-lg">
                 <CardContent className="p-6 space-y-4">
                   <div className="text-center">
-                    <div className="text-4xl font-bold text-gray-900 mb-2">Free</div>
-                    <p className="text-sm text-gray-600 mb-6">No credit card required</p>
+                    {course.price > 0 ? (
+                      <>
+                        <div className="text-4xl font-bold text-gray-900 mb-2">
+                          ${course.price.toFixed(2)}
+                        </div>
+                        <p className="text-sm text-gray-600 mb-6">One-time payment</p>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-4xl font-bold text-gray-900 mb-2">Free</div>
+                        <p className="text-sm text-gray-600 mb-6">No credit card required</p>
+                      </>
+                    )}
                     
                     <EnrollButton
                       courseId={course.id}
+                      courseSlug={course.slug}
                       isEnrolled={!!isEnrolled}
                       userId={session?.user.id}
+                      price={course.price}
+                      courseTitle={course.title}
                     />
                     
                     {isEnrolled && (

@@ -121,5 +121,5 @@ Once your database is connected, the app will:
 - Enable course creation and enrollment
 - Show all features working properly
 
-Need help? Check `DATABASE_SETUP.md` for more detailed instructions.
+Need help? Check `docs/DATABASE_SETUP.md` for more detailed instructions.
 

@@ -82,6 +82,6 @@ if [ $? -eq 0 ]; then
 else
   echo ""
   echo "❌ Database setup failed. Please check your DATABASE_URL in .env"
-  echo "See DATABASE_SETUP.md for troubleshooting"
+  echo "See docs/DATABASE_SETUP.md for troubleshooting"
 fi
 

@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, BookOpen, Users, BarChart3, Settings, Download } from "lucide-react"
+import { LayoutDashboard, BookOpen, Users, BarChart3, Settings, Download, DollarSign, ShoppingBag } from "lucide-react"
 
 interface SidebarProps {
   role: "STUDENT" | "INSTRUCTOR"
@@ -17,6 +17,11 @@ export function Sidebar({ role }: SidebarProps) {
       name: "My Courses",
       href: "/dashboard/student",
       icon: BookOpen,
+    },
+    {
+      name: "My Purchases",
+      href: "/dashboard/student/purchases",
+      icon: ShoppingBag,
     },
   ]
 
@@ -40,6 +45,11 @@ export function Sidebar({ role }: SidebarProps) {
       name: "Analytics",
       href: "/dashboard/instructor/analytics",
       icon: BarChart3,
+    },
+    {
+      name: "Revenue",
+      href: "/dashboard/instructor/revenue",
+      icon: DollarSign,
     },
     {
       name: "Export Data",

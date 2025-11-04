@@ -166,6 +166,31 @@ export function CreateCourseForm() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
+              <Label htmlFor="price">Price (USD) *</Label>
+              <Input
+                id="price"
+                type="number"
+                step="0.01"
+                min="0"
+                {...register("price", { required: true, valueAsNumber: true, min: 0 })}
+                placeholder="0.00"
+                defaultValue={0}
+              />
+              <p className="text-xs text-gray-500 mt-1">Set to 0 for free courses</p>
+            </div>
+
+            <div>
+              <Label htmlFor="language">Language</Label>
+              <Input
+                id="language"
+                {...register("language")}
+                placeholder="e.g., English"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
               <Label htmlFor="thumbnailUrl">Thumbnail URL *</Label>
               <Input
                 id="thumbnailUrl"

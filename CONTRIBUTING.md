@@ -38,7 +38,7 @@ The project follows a **feature-based architecture**:
 - `components/shared/` - Shared/reusable components
 - `components/ui/` - UI primitives (shadcn/ui)
 
-See [STRUCTURE.md](./STRUCTURE.md) for detailed documentation.
+See [docs/STRUCTURE.md](../docs/STRUCTURE.md) for detailed documentation.
 
 ## 📝 Coding Standards
 
@@ -155,7 +155,7 @@ chore: Update dependencies
 - [Next.js Documentation](https://nextjs.org/docs)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [Tailwind CSS](https://tailwindcss.com/docs)
-- [Project Structure](./STRUCTURE.md)
+- [Project Structure](./docs/STRUCTURE.md)
 
 ## ❓ Questions?
 

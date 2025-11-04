@@ -1,7 +1,7 @@
 // This file provides a Prisma-like interface using local JSON storage
 // It wraps the store functions to match Prisma query patterns
 
-import { users, courses, lessons, enrollments, reviews, generateId } from "./store"
+import { users, courses, lessons, enrollments, reviews, payments, wishlist, notes, generateId } from "./store"
 
 // Helper to get related data
 function getCourseWithRelations(course: any) {
@@ -607,6 +607,180 @@ export const prisma = {
         if (options.where.courseId && r.courseId !== options.where.courseId) return false
         return true
       } : undefined)
+    },
+  },
+
+  payment: {
+    findMany: async (options?: any) => {
+      let allPayments = payments.getAll()
+      
+      if (options?.where) {
+        if (options.where.userId) {
+          allPayments = allPayments.filter((p: any) => p.userId === options.where.userId)
+        }
+        if (options.where.courseId) {
+          allPayments = allPayments.filter((p: any) => p.courseId === options.where.courseId)
+        }
+        if (options.where.status) {
+          allPayments = allPayments.filter((p: any) => p.status === options.where.status)
+        }
+        if (options.where.paymentIntentId) {
+          allPayments = allPayments.filter((p: any) => p.paymentIntentId === options.where.paymentIntentId)
+        }
+      }
+
+      if (options?.orderBy) {
+        if (options.orderBy.createdAt) {
+          allPayments.sort((a: any, b: any) => {
+            const aDate = new Date(a.createdAt).getTime()
+            const bDate = new Date(b.createdAt).getTime()
+            return options.orderBy.createdAt === "desc" ? bDate - aDate : aDate - bDate
+          })
+        }
+      }
+
+      return allPayments
+    },
+    findUnique: async (options: any) => {
+      const { where } = options
+      if (where.id) return payments.getById(where.id)
+      if (where.paymentIntentId) return payments.getByPaymentIntentId(where.paymentIntentId)
+      return null
+    },
+    findFirst: async (options?: any) => {
+      let allPayments = payments.getAll()
+      
+      if (options?.where) {
+        if (options.where.userId && options.where.courseId) {
+          return payments.getByUserAndCourse(options.where.userId, options.where.courseId) || null
+        }
+      }
+      
+      return allPayments.length > 0 ? allPayments[0] : null
+    },
+    create: async (data: any) => {
+      const payment = {
+        id: generateId(),
+        ...data.data,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+      return payments.create(payment)
+    },
+    update: async (options: any) => {
+      const { where, data } = options
+      if (where.paymentIntentId) {
+        return payments.updateByPaymentIntentId(where.paymentIntentId, data)
+      }
+      return payments.update(where.id, data)
+    },
+    count: async (options?: any) => {
+      return payments.count(options?.where ? (p: any) => {
+        if (options.where.userId && p.userId !== options.where.userId) return false
+        if (options.where.courseId && p.courseId !== options.where.courseId) return false
+        if (options.where.status && p.status !== options.where.status) return false
+        return true
+      } : undefined)
+    },
+  },
+
+  wishlist: {
+    findMany: async (options?: any) => {
+      let allWishlist = wishlist.getAll()
+      
+      if (options?.where) {
+        if (options.where.userId) {
+          allWishlist = allWishlist.filter((w: any) => w.userId === options.where.userId)
+        }
+        if (options.where.courseId) {
+          allWishlist = allWishlist.filter((w: any) => w.courseId === options.where.courseId)
+        }
+      }
+
+      if (options?.include) {
+        allWishlist = allWishlist.map((item: any) => {
+          const itemData: any = { ...item }
+          if (options.include.course) {
+            itemData.course = courses.getById(item.courseId)
+            if (itemData.course && options.include.course.include) {
+              if (options.include.course.include.instructor) {
+                itemData.course.instructor = users.getById(itemData.course.instructorId)
+              }
+            }
+          }
+          return itemData
+        })
+      }
+
+      return allWishlist
+    },
+    findFirst: async (options?: any) => {
+      if (options?.where) {
+        if (options.where.userId && options.where.courseId) {
+          return wishlist.getByUserAndCourse(options.where.userId, options.where.courseId) || null
+        }
+      }
+      return null
+    },
+    create: async (data: any) => {
+      const item = {
+        id: generateId(),
+        ...data.data,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+      return wishlist.create(item)
+    },
+    deleteMany: async (options?: any) => {
+      if (options?.where) {
+        if (options.where.userId && options.where.courseId) {
+          wishlist.delete(options.where.userId, options.where.courseId)
+          return { count: 1 }
+        }
+      }
+      return { count: 0 }
+    },
+  },
+
+  note: {
+    findMany: async (options?: any) => {
+      let allNotes = notes.getAll()
+      
+      if (options?.where) {
+        if (options.where.userId) {
+          allNotes = allNotes.filter((n: any) => n.userId === options.where.userId)
+        }
+        if (options.where.lessonId) {
+          allNotes = allNotes.filter((n: any) => n.lessonId === options.where.lessonId)
+        }
+      }
+
+      return allNotes
+    },
+    findFirst: async (options?: any) => {
+      if (options?.where) {
+        if (options.where.userId && options.where.lessonId) {
+          return notes.getByUserAndLesson(options.where.userId, options.where.lessonId) || null
+        }
+      }
+      return null
+    },
+    create: async (data: any) => {
+      const note = {
+        id: generateId(),
+        ...data.data,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+      return notes.create(note)
+    },
+    update: async (options: any) => {
+      const { where, data } = options
+      return notes.update(where.id, data)
+    },
+    delete: async (options: any) => {
+      const { where } = options
+      return notes.delete(where.id)
     },
   },
 }

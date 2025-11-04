@@ -31,7 +31,7 @@ export function DatabaseError() {
             </ol>
           </div>
           <p className="text-xs text-gray-500 mt-4">
-            See <code className="bg-gray-100 px-1 rounded">DATABASE_SETUP.md</code> for detailed instructions.
+            See <code className="bg-gray-100 px-1 rounded">docs/DATABASE_SETUP.md</code> for detailed instructions.
           </p>
         </CardContent>
       </Card>

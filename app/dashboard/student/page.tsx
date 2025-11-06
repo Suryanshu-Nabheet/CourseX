@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getSafeServerSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -36,7 +35,7 @@ async function getEnrollments(userId: string) {
 }
 
 export default async function StudentDashboard() {
-  const session = await getServerSession(authOptions)
+  const session = await getSafeServerSession()
 
   if (!session) {
     redirect("/auth/login")

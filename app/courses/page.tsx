@@ -35,11 +35,25 @@ async function getCourses(searchParams: {
       where.difficulty = searchParams.difficulty
     }
 
-    const orderBy: any = { createdAt: "desc" }
-    if (searchParams.sort === "rating") {
-      orderBy.reviews = { _count: "desc" }
-    } else if (searchParams.sort === "enrollments") {
-      // Will need to sort by enrollment count
+    let orderBy: any = { createdAt: "desc" }
+    
+    switch (searchParams.sort) {
+      case "rating":
+        // Sort by average rating (calculated in the map)
+        orderBy = { createdAt: "desc" } // Will sort client-side after calculating rating
+        break
+      case "enrollments":
+        // Sort by enrollment count
+        orderBy = { enrollments: { _count: "desc" } }
+        break
+      case "newest":
+        orderBy = { createdAt: "desc" }
+        break
+      case "oldest":
+        orderBy = { createdAt: "asc" }
+        break
+      default:
+        orderBy = { createdAt: "desc" }
     }
 
     const page = parseInt(searchParams.page || "1")
@@ -65,17 +79,24 @@ async function getCourses(searchParams: {
       prisma.course.count({ where }),
     ])
 
+    let mappedCourses = courses.map((course) => ({
+      ...course,
+      rating:
+        course.reviews.length > 0
+          ? course.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) /
+            course.reviews.length
+          : 0,
+      totalReviews: course.reviews.length,
+      enrollmentCount: course.enrollments.length,
+    }))
+
+    // Sort by rating if needed (since we can't do this in Prisma easily)
+    if (searchParams.sort === "rating") {
+      mappedCourses = mappedCourses.sort((a, b) => b.rating - a.rating)
+    }
+
     return {
-      courses: courses.map((course) => ({
-        ...course,
-        rating:
-          course.reviews.length > 0
-            ? course.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) /
-              course.reviews.length
-            : 0,
-        totalReviews: course.reviews.length,
-        enrollments: course.enrollments.length,
-      })),
+      courses: mappedCourses,
       total,
       totalPages: Math.ceil(total / COURSES_PER_PAGE),
       currentPage: page,
@@ -179,7 +200,7 @@ export default async function CoursesPage({
                 difficulty={course.difficulty}
                 rating={course.rating}
                 totalReviews={course.totalReviews}
-                enrollments={course.enrollments}
+                enrollments={course.enrollmentCount}
               />
             ))}
           </div>

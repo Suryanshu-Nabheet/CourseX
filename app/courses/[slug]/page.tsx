@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { prisma } from "@/lib/prisma"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getSafeServerSession } from "@/lib/auth"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,6 +26,7 @@ import { ReviewSection } from "@/components/courses/ReviewSection"
 import { CourseVideoPlayer } from "@/components/courses/CourseVideoPlayer"
 import { ExpandableSection } from "@/components/courses/ExpandableSection"
 import { WishlistButton } from "@/components/courses/WishlistButton"
+import { EnrollmentAlert } from "@/components/courses/EnrollmentAlert"
 
 async function getCourse(slug: string) {
   try {
@@ -68,7 +68,7 @@ export default async function CourseDetailPage({
 }) {
   const { slug } = await params
   const course = await getCourse(slug)
-  const session = await getServerSession(authOptions)
+  const session = await getSafeServerSession()
 
   if (!course) {
     notFound()
@@ -184,6 +184,7 @@ export default async function CourseDetailPage({
 
       {/* Main Content Area */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+        <EnrollmentAlert />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* Main Content - Left Column */}
           <div className="lg:col-span-2 space-y-8">

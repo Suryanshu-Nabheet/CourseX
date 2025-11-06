@@ -50,8 +50,13 @@ export function EnrollButton({
       })
 
       if (response.ok) {
+        const enrollmentData = await response.json()
+        console.log("Enrollment successful:", enrollmentData)
         toast.success("Successfully enrolled!", "You now have access to all course materials.")
-        router.refresh()
+        // Wait a bit longer and use window.location for a hard refresh
+        setTimeout(() => {
+          window.location.href = `/courses/learn/${courseId}`
+        }, 1000)
       } else if (response.status === 402) {
         // Payment required
         const data = await response.json()

@@ -1,6 +1,5 @@
 import { redirect, notFound } from "next/navigation"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getSafeServerSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { Certificate } from "@/components/courses/Certificate"
 
@@ -49,7 +48,7 @@ export default async function CertificatePage({
 }: {
   params: Promise<{ slug: string }>
 }) {
-  const session = await getServerSession(authOptions)
+  const session = await getSafeServerSession()
 
   if (!session) {
     redirect("/auth/login")

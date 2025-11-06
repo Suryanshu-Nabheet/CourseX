@@ -1,11 +1,62 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getSafeServerSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+
+export async function GET(req: Request) {
+  try {
+    const session = await getSafeServerSession()
+
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      )
+    }
+
+    const { searchParams } = new URL(req.url)
+    const courseId = searchParams.get("courseId")
+
+    if (courseId) {
+      // Check specific course enrollment
+      const enrollment = await prisma.enrollment.findUnique({
+        where: {
+          studentId_courseId: {
+            studentId: session.user.id,
+            courseId,
+          },
+        },
+      })
+
+      return NextResponse.json({ enrolled: !!enrollment, enrollment })
+    }
+
+    // Get all enrollments for user
+    const enrollments = await prisma.enrollment.findMany({
+      where: { studentId: session.user.id },
+      include: {
+        course: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+          },
+        },
+      },
+    })
+
+    return NextResponse.json(enrollments)
+  } catch (error) {
+    console.error("Error fetching enrollments:", error)
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
+  }
+}
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSafeServerSession()
 
     if (!session) {
       return NextResponse.json(
@@ -88,8 +139,11 @@ export async function POST(req: Request) {
         studentId: session.user.id,
         courseId,
         progress: 0,
+        completed: false,
       },
     })
+
+    console.log(`✅ Enrollment created: ${enrollment.id} for user ${session.user.id} in course ${courseId}`)
 
     return NextResponse.json(enrollment, { status: 201 })
   } catch (error) {

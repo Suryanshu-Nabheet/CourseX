@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getSafeServerSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSafeServerSession()
 
     if (!session) {
       return NextResponse.json(
@@ -34,7 +33,9 @@ export async function POST(req: Request) {
       include: {
         course: {
           include: {
-            lessons: true,
+            lessons: {
+              orderBy: { order: "asc" },
+            },
           },
         },
       },
@@ -47,25 +48,48 @@ export async function POST(req: Request) {
       )
     }
 
-    // Calculate progress based on lessons (simplified - in production, track individual lesson completion)
-    const enrollmentData = enrollment as any
-    const totalLessons = enrollmentData.course?.lessons?.length || 0
-    // For now, just increment progress by a fixed amount
-    // In production, you'd track which specific lessons are completed
+    // Check if lesson exists in course
+    const lesson = enrollment.course.lessons.find((l: any) => l.id === lessonId)
+    if (!lesson) {
+      return NextResponse.json(
+        { error: "Lesson not found in this course" },
+        { status: 404 }
+      )
+    }
 
-    const newProgress = Math.min((enrollmentData.progress || 0) + Math.floor(100 / totalLessons), 100)
+    // Get or create lesson completion record
+    // Note: This assumes you have a LessonCompletion model. If not, we'll track via enrollment progress
+    const totalLessons = enrollment.course.lessons.length
+    
+    // Calculate progress: count completed lessons
+    // For now, we'll use a simple progress calculation
+    // In a production system, you'd have a LessonCompletion table to track individual lessons
+    const currentProgress = enrollment.progress || 0
+    const progressPerLesson = totalLessons > 0 ? 100 / totalLessons : 0
+    
+    // Only increment if this is the first time completing this lesson
+    // In production, check LessonCompletion table
+    const newProgress = Math.min(
+      Math.ceil(currentProgress + progressPerLesson),
+      100
+    )
 
-      await prisma.enrollment.update({
-        where: {
-          id: enrollmentData.id,
-        },
-        data: {
-          progress: newProgress,
-          completed: newProgress >= 100,
-        },
-      })
+    await prisma.enrollment.update({
+      where: {
+        id: enrollment.id,
+      },
+      data: {
+        progress: newProgress,
+        completed: newProgress >= 100,
+        updatedAt: new Date(),
+      },
+    })
 
-    return NextResponse.json({ success: true, progress: newProgress })
+    return NextResponse.json({ 
+      success: true, 
+      progress: newProgress,
+      completed: newProgress >= 100,
+    })
   } catch (error) {
     console.error("Lesson completion error:", error)
     return NextResponse.json(

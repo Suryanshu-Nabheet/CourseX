@@ -41,13 +41,33 @@ export function CoursePlayer({
 }: CoursePlayerProps) {
   const router = useRouter()
   const [completedLessons, setCompletedLessons] = useState<string[]>([])
+  const [isCompleting, setIsCompleting] = useState(false)
 
   useEffect(() => {
-    // Mark lesson as completed when video ends (simplified - in production, track actual completion)
-    // You would typically send an API call to mark lesson as complete
-  }, [])
+    // Fetch completed lessons from the server
+    const fetchCompletedLessons = async () => {
+      try {
+        const response = await fetch(`/api/enrollments?courseId=${course.id}`)
+        if (response.ok) {
+          const data = await response.json()
+          // In production, you'd have a list of completed lesson IDs
+          // For now, we'll track locally based on API responses
+        }
+      } catch (error) {
+        console.error("Failed to fetch completed lessons:", error)
+      }
+    }
+
+    fetchCompletedLessons()
+  }, [course.id])
 
   const handleLessonComplete = async () => {
+    // Prevent double-submission
+    if (isCompleting || completedLessons.includes(currentLesson.id)) {
+      return
+    }
+
+    setIsCompleting(true)
     try {
       const response = await fetch("/api/lessons/complete", {
         method: "POST",
@@ -59,14 +79,27 @@ export function CoursePlayer({
       })
 
       if (response.ok) {
+        const data = await response.json()
         setCompletedLessons([...completedLessons, currentLesson.id])
-        toast.success("Lesson completed!", "Great progress!")
+        
+        if (data.completed) {
+          toast.success("Course Completed! 🎉", "Congratulations on finishing the course!")
+          // Optionally redirect to certificate page
+          setTimeout(() => {
+            router.push(`/courses/${course.slug}/certificate`)
+          }, 2000)
+        } else {
+          toast.success("Lesson completed!", `Progress: ${data.progress}%`)
+        }
       } else {
-        toast.error("Failed to mark lesson as complete", "Please try again.")
+        const errorData = await response.json()
+        toast.error("Failed to mark lesson as complete", errorData.error || "Please try again.")
       }
     } catch (error) {
       console.error("Failed to mark lesson as complete:", error)
       toast.error("Something went wrong", "Please try again later.")
+    } finally {
+      setIsCompleting(false)
     }
   }
 
@@ -150,8 +183,16 @@ export function CoursePlayer({
           <CardContent className="p-6 sm:p-8">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-2xl font-bold">{currentLesson.title}</h1>
-              <Button onClick={handleLessonComplete} variant="outline">
-                Mark as Complete
+              <Button 
+                onClick={handleLessonComplete} 
+                variant="outline"
+                disabled={isCompleting || completedLessons.includes(currentLesson.id)}
+              >
+                {isCompleting 
+                  ? "Completing..." 
+                  : completedLessons.includes(currentLesson.id)
+                  ? "Completed ✓"
+                  : "Mark as Complete"}
               </Button>
             </div>
             {currentLesson.description && (

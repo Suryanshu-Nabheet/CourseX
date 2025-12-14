@@ -1,13 +1,12 @@
-import { redirect } from "next/navigation"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
-import { Sidebar } from "@/components/layout/Sidebar"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { BookOpen, Users, TrendingUp, Plus } from "lucide-react"
-import { EmptyState } from "@/components/shared/EmptyState"
+import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { BookOpen, Users, TrendingUp, Plus } from "lucide-react";
+import { EmptyState } from "@/components/shared/EmptyState";
 
 async function getInstructorStats(userId: string) {
   try {
@@ -17,40 +16,42 @@ async function getInstructorStats(userId: string) {
         enrollments: true,
         reviews: true,
       },
-    })
+    });
 
-    const totalCourses = courses.length
-    const publishedCourses = courses.filter((c) => c.published).length
+    const totalCourses = courses.length;
+    const publishedCourses = courses.filter((c) => c.published).length;
     const totalEnrollments = courses.reduce(
-      (acc, c) => acc + c.enrollments.length,
+      (acc: number, c: any) => acc + c.enrollments.length,
       0
-    )
+    );
     const averageRating =
       courses.length > 0
-        ? courses.reduce((acc, c) => {
+        ? courses.reduce((acc: number, c: any) => {
             const courseRating =
               c.reviews.length > 0
-                ? c.reviews.reduce((rAcc, r) => rAcc + r.rating, 0) /
-                  c.reviews.length
-                : 0
-            return acc + courseRating
+                ? c.reviews.reduce(
+                    (rAcc: number, r: any) => rAcc + r.rating,
+                    0
+                  ) / c.reviews.length
+                : 0;
+            return acc + courseRating;
           }, 0) / courses.length
-        : 0
+        : 0;
 
     return {
       totalCourses,
       publishedCourses,
       totalEnrollments,
       averageRating,
-    }
+    };
   } catch (error) {
-    console.error("Error fetching instructor stats:", error)
+    console.error("Error fetching instructor stats:", error);
     return {
       totalCourses: 0,
       publishedCourses: 0,
       totalEnrollments: 0,
       averageRating: 0,
-    }
+    };
   }
 }
 
@@ -64,33 +65,44 @@ async function getRecentCourses(userId: string) {
       },
       orderBy: { updatedAt: "desc" },
       take: 5,
-    })
+    });
   } catch (error) {
-    console.error("Error fetching recent courses:", error)
-    return []
+    console.error("Error fetching recent courses:", error);
+    return [];
   }
 }
 
 export default async function InstructorDashboard() {
-  const session = await getServerSession(authOptions)
+  const { userId } = await auth();
 
-  if (!session) {
-    redirect("/auth/login")
+  if (!userId) {
+    redirect("/");
   }
 
-  if (session.user.role !== "INSTRUCTOR") {
-    redirect("/dashboard/student")
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  // Optional: Create user if missing or redirect to setup
+  if (!user) {
+    redirect("/");
   }
 
-  const stats = await getInstructorStats(session.user.id)
-  const recentCourses = await getRecentCourses(session.user.id)
+  if (user.role !== "INSTRUCTOR") {
+    redirect("/dashboard/student");
+  }
+
+  const stats = await getInstructorStats(userId);
+  const recentCourses = await getRecentCourses(userId);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar role="INSTRUCTOR" />
       <div className="flex-1 p-6 sm:p-8 lg:p-12">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">Dashboard</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
+            Dashboard
+          </h1>
           <Link href="/dashboard/instructor/create">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
@@ -103,7 +115,9 @@ export default async function InstructorDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Courses
+              </CardTitle>
               <BookOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -115,7 +129,9 @@ export default async function InstructorDashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Students
+              </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -125,7 +141,9 @@ export default async function InstructorDashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Average Rating
+              </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -172,7 +190,7 @@ export default async function InstructorDashboard() {
                           (acc: number, r: any) => acc + r.rating,
                           0
                         ) / course.reviews.length
-                      : 0
+                      : 0;
 
                   return (
                     <div
@@ -202,7 +220,7 @@ export default async function InstructorDashboard() {
                         <Button variant="outline">Edit</Button>
                       </Link>
                     </div>
-                  )
+                  );
                 })}
               </div>
             )}
@@ -210,6 +228,5 @@ export default async function InstructorDashboard() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
-

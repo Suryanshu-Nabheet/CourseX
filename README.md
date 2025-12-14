@@ -23,6 +23,7 @@ Visit `http://localhost:3000` to see the application.
 ## ✨ Features
 
 ### 🎓 For Students
+
 - Browse and search courses with advanced filtering
 - Purchase courses with secure Stripe payments
 - Interactive course player with video lessons
@@ -32,6 +33,7 @@ Visit `http://localhost:3000` to see the application.
 - Purchase history and certificates
 
 ### 👨‍🏫 For Instructors
+
 - Create and manage courses with rich content
 - Set pricing and sell courses
 - Track revenue and earnings
@@ -40,6 +42,7 @@ Visit `http://localhost:3000` to see the application.
 - Comprehensive dashboard
 
 ### 🏢 Platform Features
+
 - Role-based authentication (Student/Instructor/Admin)
 - Google OAuth + Email/Password login
 - Beautiful, modern UI with Framer Motion animations
@@ -102,9 +105,11 @@ LMS/
 After running `npm run db:seed`:
 
 **Instructors:**
+
 - Email: `suryanshu@coursex.com` / Password: `password123`
 
 **Students:**
+
 - Email: `john@example.com` / Password: `password123`
 - Email: `jane@example.com` / Password: `password123`
 
@@ -155,9 +160,10 @@ See [Contributing Guidelines](./docs/CONTRIBUTING.md) for details on how to cont
 
 MIT License - feel free to use this project for learning and building your own LMS!
 
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ---
 
-**Made with ❤️ by the CourseX Team**
-
-For detailed documentation, see the [`docs/`](./docs/) folder.
-
+**Made with ❤️ by Suryanshu Nabheet**

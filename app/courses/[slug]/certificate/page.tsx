@@ -1,7 +1,7 @@
-import { redirect, notFound } from "next/navigation"
-import { getSafeServerSession } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
-import { Certificate } from "@/components/courses/Certificate"
+import { redirect, notFound } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
+import { Certificate } from "@/components/courses/Certificate";
 
 async function getEnrollment(slug: string, userId: string) {
   try {
@@ -20,45 +20,45 @@ async function getEnrollment(slug: string, userId: string) {
           },
         },
       },
-    })
+    });
 
     if (!course || course.enrollments.length === 0) {
-      return null
+      return null;
     }
 
-    const enrollment = course.enrollments[0]
-    const user = await prisma.user.findUnique({
+    const enrollment = course.enrollments[0];
+    const user = (await prisma.user.findUnique({
       where: { id: userId },
       select: { name: true },
-    }) as { name: string } | null
+    })) as { name: string } | null;
 
     return {
       course,
       enrollment,
       studentName: user?.name || "Student",
-    }
+    };
   } catch (error) {
-    console.error("Error fetching certificate data:", error)
-    return null
+    console.error("Error fetching certificate data:", error);
+    return null;
   }
 }
 
 export default async function CertificatePage({
   params,
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string }>;
 }) {
-  const session = await getSafeServerSession()
+  const { userId } = await auth();
 
-  if (!session) {
-    redirect("/auth/login")
+  if (!userId) {
+    redirect("/sign-in");
   }
 
-  const { slug } = await params
-  const data = await getEnrollment(slug, session.user.id)
+  const { slug } = await params;
+  const data = await getEnrollment(slug, userId);
 
   if (!data) {
-    notFound()
+    notFound();
   }
 
   return (
@@ -70,6 +70,5 @@ export default async function CertificatePage({
         completedDate={data.enrollment.updatedAt.toISOString()}
       />
     </div>
-  )
+  );
 }
-

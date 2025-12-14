@@ -1,78 +1,87 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { useSession } from "next-auth/react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner"
-import { toast } from "@/lib/toast"
-import { CheckCircle2, Lock, ArrowLeft, CreditCard } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { toast } from "@/lib/toast";
+import { CheckCircle2, Lock, ArrowLeft, CreditCard } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
 export default function CheckoutPage() {
-  const params = useParams()
-  const router = useRouter()
-  const { data: session, status } = useSession()
-  const courseId = params.courseId as string
-  const [loading, setLoading] = useState(true)
-  const [processing, setProcessing] = useState(false)
-  const [course, setCourse] = useState<any>(null)
-  const [paymentIntent, setPaymentIntent] = useState<any>(null)
+  const params = useParams();
+  const router = useRouter();
+  const { user, isLoaded, isSignedIn } = useUser();
+  const courseId = params.courseId as string;
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
+  const [course, setCourse] = useState<any>(null);
+  const [paymentIntent, setPaymentIntent] = useState<any>(null);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/login?callbackUrl=/checkout/" + courseId)
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in?redirect_url=/checkout/" + courseId);
     }
-  }, [status, router, courseId])
+  }, [isLoaded, isSignedIn, router, courseId]);
 
   useEffect(() => {
     async function loadCourse() {
       try {
         // Fetch course details
-        const courseRes = await fetch(`/api/courses/${courseId}`)
+        const courseRes = await fetch(`/api/courses/${courseId}`);
         if (!courseRes.ok) {
-          router.push("/courses")
-          return
+          router.push("/courses");
+          return;
         }
-        const courseData = await courseRes.json()
-        setCourse(courseData)
+        const courseData = await courseRes.json();
+        setCourse(courseData);
 
         // Create payment intent
         const paymentRes = await fetch("/api/payments/create-intent", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ courseId }),
-        })
+        });
 
         if (!paymentRes.ok) {
-          const error = await paymentRes.json()
-          toast.error("Payment Error", error.error || "Failed to initialize payment")
-          router.push(`/courses/${courseData.slug}`)
-          return
+          const error = await paymentRes.json();
+          toast.error(
+            "Payment Error",
+            error.error || "Failed to initialize payment"
+          );
+          router.push(`/courses/${courseData.slug}`);
+          return;
         }
 
-        const paymentData = await paymentRes.json()
-        setPaymentIntent(paymentData)
+        const paymentData = await paymentRes.json();
+        setPaymentIntent(paymentData);
       } catch (error) {
-        console.error("Error loading checkout:", error)
-        toast.error("Error", "Failed to load checkout page")
-        router.push("/courses")
+        console.error("Error loading checkout:", error);
+        toast.error("Error", "Failed to load checkout page");
+        router.push("/courses");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
     if (courseId) {
-      loadCourse()
+      loadCourse();
     }
-  }, [courseId, router])
+  }, [courseId, router]);
 
   const handlePayment = async () => {
-    if (!paymentIntent) return
+    if (!paymentIntent) return;
 
-    setProcessing(true)
+    setProcessing(true);
     try {
       // For mock payments (development), auto-confirm
       if (!paymentIntent.clientSecret) {
@@ -84,16 +93,19 @@ export default function CheckoutPage() {
             paymentIntentId: paymentIntent.paymentIntentId,
             paymentId: paymentIntent.paymentId,
           }),
-        })
+        });
 
         if (confirmRes.ok) {
-          toast.success("Payment Successful!", "You now have access to the course.")
-          router.push(`/courses/learn/${courseId}`)
+          toast.success(
+            "Payment Successful!",
+            "You now have access to the course."
+          );
+          router.push(`/courses/learn/${courseId}`);
         } else {
-          const error = await confirmRes.json()
-          toast.error("Payment Failed", error.error || "Please try again")
+          const error = await confirmRes.json();
+          toast.error("Payment Failed", error.error || "Please try again");
         }
-        return
+        return;
       }
 
       // For real Stripe integration, you would use Stripe Elements here
@@ -105,29 +117,32 @@ export default function CheckoutPage() {
           paymentIntentId: paymentIntent.paymentIntentId,
           paymentId: paymentIntent.paymentId,
         }),
-      })
+      });
 
       if (confirmRes.ok) {
-        toast.success("Payment Successful!", "You now have access to the course.")
-        router.push(`/courses/learn/${courseId}`)
+        toast.success(
+          "Payment Successful!",
+          "You now have access to the course."
+        );
+        router.push(`/courses/learn/${courseId}`);
       } else {
-        const error = await confirmRes.json()
-        toast.error("Payment Failed", error.error || "Please try again")
+        const error = await confirmRes.json();
+        toast.error("Payment Failed", error.error || "Please try again");
       }
     } catch (error) {
-      console.error("Payment error:", error)
-      toast.error("Payment Error", "Something went wrong. Please try again.")
+      console.error("Payment error:", error);
+      toast.error("Payment Error", "Something went wrong. Please try again.");
     } finally {
-      setProcessing(false)
+      setProcessing(false);
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    )
+    );
   }
 
   if (!course || !paymentIntent) {
@@ -142,11 +157,11 @@ export default function CheckoutPage() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
-  const platformFee = course.price * 0.1
-  const total = course.price
+  const platformFee = course.price * 0.1;
+  const total = course.price;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -178,7 +193,9 @@ export default function CheckoutPage() {
                     />
                   )}
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg mb-2">{course.title}</h3>
+                    <h3 className="font-semibold text-lg mb-2">
+                      {course.title}
+                    </h3>
                     <p className="text-sm text-gray-600 line-clamp-2">
                       {course.description}
                     </p>
@@ -203,22 +220,29 @@ export default function CheckoutPage() {
                 {!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <p className="text-sm text-yellow-800">
-                      <strong>Development Mode:</strong> Payments are simulated. No real charges will be made.
+                      <strong>Development Mode:</strong> Payments are simulated.
+                      No real charges will be made.
                     </p>
                   </div>
                 )}
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Course Price</span>
-                    <span className="font-medium">${course.price.toFixed(2)}</span>
+                    <span className="font-medium">
+                      ${course.price.toFixed(2)}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Platform Fee (10%)</span>
-                    <span className="text-gray-600">${platformFee.toFixed(2)}</span>
+                    <span className="text-gray-600">
+                      ${platformFee.toFixed(2)}
+                    </span>
                   </div>
                   <div className="border-t pt-2 flex justify-between">
                     <span className="font-semibold">Total</span>
-                    <span className="text-2xl font-bold">${total.toFixed(2)}</span>
+                    <span className="text-2xl font-bold">
+                      ${total.toFixed(2)}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -235,11 +259,15 @@ export default function CheckoutPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Course</span>
-                    <span className="font-medium">${course.price.toFixed(2)}</span>
+                    <span className="font-medium">
+                      ${course.price.toFixed(2)}
+                    </span>
                   </div>
                   <div className="border-t pt-2 flex justify-between">
                     <span className="font-semibold">Total</span>
-                    <span className="text-xl font-bold">${total.toFixed(2)}</span>
+                    <span className="text-xl font-bold">
+                      ${total.toFixed(2)}
+                    </span>
                   </div>
                 </div>
 
@@ -263,7 +291,8 @@ export default function CheckoutPage() {
                 </Button>
 
                 <p className="text-xs text-gray-500 text-center">
-                  By completing this purchase, you agree to our Terms of Service and Privacy Policy.
+                  By completing this purchase, you agree to our Terms of Service
+                  and Privacy Policy.
                 </p>
 
                 <div className="pt-4 border-t space-y-2">
@@ -286,6 +315,5 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-

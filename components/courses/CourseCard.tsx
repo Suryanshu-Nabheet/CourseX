@@ -1,28 +1,33 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import Image from "next/image"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Star } from "lucide-react"
-import { motion } from "framer-motion"
+import Link from "next/link";
+import Image from "next/image";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Star } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface CourseCardProps {
-  id: string
-  title: string
-  slug: string
-  description: string
-  thumbnailUrl: string
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  thumbnailUrl: string;
   instructor: {
-    name: string
-    image?: string | null
-  }
-  category: string
-  difficulty?: string | null
-  rating?: number
-  totalReviews?: number
-  price?: number
-  enrollments?: number
+    name: string;
+    image?: string | null;
+  };
+  category: string;
+  difficulty?: string | null;
+  rating?: number;
+  totalReviews?: number;
+  price?: number;
+  enrollments?: number;
 }
 
 export function CourseCard({
@@ -36,6 +41,7 @@ export function CourseCard({
   rating = 0,
   totalReviews = 0,
   enrollments = 0,
+  price = 0,
 }: CourseCardProps) {
   return (
     <motion.div
@@ -80,8 +86,15 @@ export function CourseCard({
             </div>
             <span className="text-gray-500">{enrollments} students</span>
           </div>
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
+          <div className="flex items-center justify-between text-sm text-gray-600">
             <span>By {instructor.name}</span>
+            <span
+              className={`font-semibold ${
+                price === 0 ? "text-green-600" : "text-gray-900"
+              }`}
+            >
+              {price === 0 ? "Free" : `$${price.toFixed(2)}`}
+            </span>
           </div>
         </CardContent>
         <CardFooter>
@@ -91,6 +104,5 @@ export function CourseCard({
         </CardFooter>
       </Card>
     </motion.div>
-  )
+  );
 }
-

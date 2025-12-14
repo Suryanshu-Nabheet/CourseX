@@ -1,14 +1,13 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params
+    const { id } = await params;
 
     const course = await prisma.course.findUnique({
       where: { id },
@@ -22,24 +21,22 @@ export async function GET(
         },
         lessons: {
           orderBy: { order: "asc" },
+          include: { resources: true },
         },
       },
-    })
+    });
 
     if (!course) {
-      return NextResponse.json(
-        { error: "Course not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 
-    return NextResponse.json(course)
+    return NextResponse.json(course);
   } catch (error) {
-    console.error("Error fetching course:", error)
+    console.error("Error fetching course:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
-    )
+    );
   }
 }
 
@@ -48,62 +45,78 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const { userId } = await auth();
 
-    if (!session || session.user.role !== "INSTRUCTOR") {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+    if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const { id } = await params
-    const data = await req.json()
-    const { lessons, published, price, ...courseData } = data
+    const { id } = await params;
+
+    // Check role from DB
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || user.role !== "INSTRUCTOR") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const data = await req.json();
+    const { lessons, published, price, ...courseData } = data;
 
     // Check if course exists and user owns it
     const course = await prisma.course.findUnique({
       where: { id },
-    })
+    });
 
-    if (!course || course.instructorId !== session.user.id) {
+    if (!course || course.instructorId !== userId) {
       return NextResponse.json(
         { error: "Course not found or unauthorized" },
         { status: 404 }
-      )
+      );
     }
 
     // Update course
-    const updateData: any = { ...courseData }
+    const updateData: any = { ...courseData };
     if (published !== undefined) {
-      updateData.published = published
+      updateData.published = published;
     }
     if (price !== undefined) {
-      updateData.price = parseFloat(price)
+      updateData.price = parseFloat(price);
     }
 
-    // Update course
-    const updatedCourse = await prisma.course.update({
+    // Remove unwanted fields from updateData if they exist
+    delete updateData.id;
+    delete updateData.createdAt;
+    delete updateData.updatedAt;
+    delete updateData.instructorId;
+
+    await prisma.course.update({
       where: { id },
       data: updateData,
-    })
+    });
 
     // Handle lessons update separately
     if (lessons && Array.isArray(lessons)) {
       // Delete existing lessons
       await prisma.lesson.deleteMany({
         where: { courseId: id },
-      })
+      });
 
       // Create new lessons
       for (const lesson of lessons) {
         await prisma.lesson.create({
           data: {
-            ...lesson,
-            courseId: id,
+            title: lesson.title,
+            description: lesson.description,
+            videoUrl: lesson.videoUrl,
             order: lesson.order || 1,
+            courseId: id,
+            resources: {
+              create: lesson.resources
+                ? lesson.resources.map((url: string) => ({ url }))
+                : [],
+            },
           },
-        })
+        });
       }
     }
 
@@ -112,16 +125,17 @@ export async function PUT(
       include: {
         lessons: {
           orderBy: { order: "asc" },
+          include: { resources: true },
         },
       },
-    })
+    });
 
-    return NextResponse.json(courseWithLessons)
+    return NextResponse.json(courseWithLessons);
   } catch (error) {
-    console.error("Course update error:", error)
+    console.error("Course update error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
-    )
+    );
   }
 }

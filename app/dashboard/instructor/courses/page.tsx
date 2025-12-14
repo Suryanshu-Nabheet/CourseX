@@ -1,13 +1,12 @@
-import { redirect } from "next/navigation"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
-import { Sidebar } from "@/components/layout/Sidebar"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import Image from "next/image"
-import { Plus, Edit, Eye } from "lucide-react"
+import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import Image from "next/image";
+import { Plus, Edit, Eye } from "lucide-react";
 
 async function getInstructorCourses(userId: string) {
   try {
@@ -19,28 +18,43 @@ async function getInstructorCourses(userId: string) {
         lessons: true,
       },
       orderBy: { updatedAt: "desc" },
-    })
+    });
   } catch (error) {
-    console.error("Error fetching instructor courses:", error)
-    return []
+    console.error("Error fetching instructor courses:", error);
+    return [];
   }
 }
 
 export default async function InstructorCoursesPage() {
-  const session = await getServerSession(authOptions)
+  const { userId } = await auth();
 
-  if (!session || session.user.role !== "INSTRUCTOR") {
-    redirect("/auth/login")
+  if (!userId) {
+    redirect("/");
   }
 
-  const courses = await getInstructorCourses(session.user.id)
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  // Optional: Create user if missing or redirect to setup
+  if (!user) {
+    redirect("/");
+  }
+
+  if (user.role !== "INSTRUCTOR") {
+    redirect("/dashboard/student");
+  }
+
+  const courses = await getInstructorCourses(userId);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar role="INSTRUCTOR" />
       <div className="flex-1 p-6 sm:p-8 lg:p-12">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">My Courses</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
+            My Courses
+          </h1>
           <Link href="/dashboard/instructor/create">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
@@ -65,9 +79,11 @@ export default async function InstructorCoursesPage() {
             {courses.map((course) => {
               const rating =
                 course.reviews.length > 0
-                  ? course.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) /
-                    course.reviews.length
-                  : 0
+                  ? course.reviews.reduce(
+                      (acc: number, r: any) => acc + r.rating,
+                      0
+                    ) / course.reviews.length
+                  : 0;
 
               return (
                 <Card key={course.id} className="overflow-hidden">
@@ -91,16 +107,21 @@ export default async function InstructorCoursesPage() {
                     </div>
                   </div>
                   <CardHeader>
-                    <CardTitle className="line-clamp-2">{course.title}</CardTitle>
+                    <CardTitle className="line-clamp-2">
+                      {course.title}
+                    </CardTitle>
                     <p className="text-sm text-gray-600">
-                      {course.lessons.length} lessons • {course.enrollments.length} students
+                      {course.lessons.length} lessons •{" "}
+                      {course.enrollments.length} students
                     </p>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-center justify-between text-sm">
                       <div>
                         {rating > 0 && (
-                          <span className="text-yellow-600">⭐ {rating.toFixed(1)}</span>
+                          <span className="text-yellow-600">
+                            ⭐ {rating.toFixed(1)}
+                          </span>
                         )}
                         <span className="text-gray-600 ml-2">
                           ({course.reviews.length} reviews)
@@ -118,7 +139,10 @@ export default async function InstructorCoursesPage() {
                         </Button>
                       </Link>
                       {course.published && (
-                        <Link href={`/courses/${course.slug}`} className="flex-1">
+                        <Link
+                          href={`/courses/${course.slug}`}
+                          className="flex-1"
+                        >
                           <Button variant="outline" className="w-full">
                             <Eye className="mr-2 h-4 w-4" />
                             View
@@ -128,12 +152,11 @@ export default async function InstructorCoursesPage() {
                     </div>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
-

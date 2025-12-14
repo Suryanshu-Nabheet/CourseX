@@ -1,32 +1,32 @@
-import { notFound } from "next/navigation"
-import type { Metadata } from "next"
-import { prisma } from "@/lib/prisma"
-import { getSafeServerSession } from "@/lib/auth"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { 
-  Star, 
-  Clock, 
-  Users, 
-  Play, 
-  CheckCircle2, 
-  Heart, 
-  Share2, 
-  Award, 
-  CalendarDays, 
-  GraduationCap, 
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { prisma } from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Star,
+  Clock,
+  Users,
+  Play,
+  CheckCircle2,
+  Heart,
+  Share2,
+  Award,
+  CalendarDays,
+  GraduationCap,
   Globe,
   PlayCircle,
   ChevronDown,
-  ChevronUp
-} from "lucide-react"
-import { EnrollButton } from "@/components/courses/EnrollButton"
-import { ReviewSection } from "@/components/courses/ReviewSection"
-import { CourseVideoPlayer } from "@/components/courses/CourseVideoPlayer"
-import { ExpandableSection } from "@/components/courses/ExpandableSection"
-import { WishlistButton } from "@/components/courses/WishlistButton"
-import { EnrollmentAlert } from "@/components/courses/EnrollmentAlert"
+  ChevronUp,
+} from "lucide-react";
+import { EnrollButton } from "@/components/courses/EnrollButton";
+import { ReviewSection } from "@/components/courses/ReviewSection";
+import { CourseVideoPlayer } from "@/components/courses/CourseVideoPlayer";
+import { ExpandableSection } from "@/components/courses/ExpandableSection";
+import { WishlistButton } from "@/components/courses/WishlistButton";
+import { EnrollmentAlert } from "@/components/courses/EnrollmentAlert";
 
 async function getCourse(slug: string) {
   try {
@@ -52,41 +52,41 @@ async function getCourse(slug: string) {
           take: 10,
         },
       },
-    })
+    });
 
-    return course
+    return course;
   } catch (error) {
-    console.error("Error fetching course:", error)
-    return null
+    console.error("Error fetching course:", error);
+    return null;
   }
 }
 
 export default async function CourseDetailPage({
   params,
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params
-  const course = await getCourse(slug)
-  const session = await getSafeServerSession()
+  const { slug } = await params;
+  const course = await getCourse(slug);
+  const { userId } = await auth();
 
   if (!course) {
-    notFound()
+    notFound();
   }
 
-  let isEnrolled: any = null
-  if (session && course) {
+  let isEnrolled: any = null;
+  if (userId && course) {
     try {
       isEnrolled = await prisma.enrollment.findUnique({
         where: {
           studentId_courseId: {
-            studentId: session.user.id,
+            studentId: userId,
             courseId: course.id,
           },
         },
-      })
+      });
     } catch (error) {
-      console.error("Error checking enrollment:", error)
+      console.error("Error checking enrollment:", error);
     }
   }
 
@@ -94,9 +94,9 @@ export default async function CourseDetailPage({
     course.reviews.length > 0
       ? course.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) /
         course.reviews.length
-      : 0
+      : 0;
 
-  const totalEnrollments = course.enrollments.length
+  const totalEnrollments = course.enrollments.length;
 
   // Placeholder learning outcomes - in production, this would come from the database
   const learningOutcomes = [
@@ -105,7 +105,7 @@ export default async function CourseDetailPage({
     "Understand industry best practices and standards",
     "Gain practical skills applicable to your career",
     "Learn from hands-on examples and exercises",
-  ]
+  ];
 
   // Placeholder skills - in production, this would come from the database
   const skillsGained = [
@@ -114,7 +114,7 @@ export default async function CourseDetailPage({
     "Problem Solving",
     "Best Practices",
     "Practical Application",
-  ].filter(Boolean)
+  ].filter(Boolean);
 
   return (
     <div className="min-h-screen bg-white">
@@ -132,7 +132,7 @@ export default async function CourseDetailPage({
                   Taught by {course.instructor.name}
                 </span>
               </div>
-              
+
               <h1 className="text-3xl lg:text-4xl font-bold mb-4 leading-tight">
                 {course.title}
               </h1>
@@ -150,12 +150,18 @@ export default async function CourseDetailPage({
                     />
                   ))}
                 </div>
-                <span className="text-lg font-semibold">{rating.toFixed(1)}</span>
+                <span className="text-lg font-semibold">
+                  {rating.toFixed(1)}
+                </span>
                 <span className="text-gray-300">
-                  ({course.reviews.length} {course.reviews.length === 1 ? 'rating' : 'ratings'})
+                  ({course.reviews.length}{" "}
+                  {course.reviews.length === 1 ? "rating" : "ratings"})
                 </span>
                 <span className="text-gray-400">•</span>
-                <span className="text-gray-300">{totalEnrollments} {totalEnrollments === 1 ? 'student' : 'students'} enrolled</span>
+                <span className="text-gray-300">
+                  {totalEnrollments}{" "}
+                  {totalEnrollments === 1 ? "student" : "students"} enrolled
+                </span>
               </div>
 
               <div className="flex items-center space-x-4 text-sm">
@@ -168,7 +174,10 @@ export default async function CourseDetailPage({
                     Free
                   </span>
                 )}
-                <span className="text-gray-300">{course.lessons.length} {course.lessons.length === 1 ? 'lesson' : 'lessons'}</span>
+                <span className="text-gray-300">
+                  {course.lessons.length}{" "}
+                  {course.lessons.length === 1 ? "lesson" : "lessons"}
+                </span>
               </div>
             </div>
 
@@ -190,7 +199,9 @@ export default async function CourseDetailPage({
           <div className="lg:col-span-2 space-y-8">
             {/* About this Course */}
             <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">About this Course</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                About this Course
+              </h2>
               <p className="text-gray-700 leading-relaxed whitespace-pre-line">
                 {course.description}
               </p>
@@ -198,7 +209,9 @@ export default async function CourseDetailPage({
 
             {/* What you'll learn */}
             <section className="border-t border-gray-200 pt-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">What you&apos;ll learn</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                What you&apos;ll learn
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {learningOutcomes.map((outcome, index) => (
                   <div key={index} className="flex items-start space-x-3">
@@ -211,7 +224,9 @@ export default async function CourseDetailPage({
 
             {/* Skills you'll gain */}
             <section className="border-t border-gray-200 pt-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Skills you&apos;ll gain</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Skills you&apos;ll gain
+              </h2>
               <div className="flex flex-wrap gap-3">
                 {skillsGained.map((skill, index) => (
                   <span
@@ -227,12 +242,14 @@ export default async function CourseDetailPage({
             {/* Course Content */}
             <section className="border-t border-gray-200 pt-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                {course.lessons.length} {course.lessons.length === 1 ? 'Lesson' : 'Lessons'} in this Course
+                {course.lessons.length}{" "}
+                {course.lessons.length === 1 ? "Lesson" : "Lessons"} in this
+                Course
               </h2>
               <div className="space-y-2">
                 {course.lessons.map((lesson: any, index: number) => (
-                  <ExpandableSection 
-                    key={lesson.id} 
+                  <ExpandableSection
+                    key={lesson.id}
                     title={`${index + 1}. ${lesson.title}`}
                     defaultExpanded={index === 0}
                   >
@@ -248,7 +265,9 @@ export default async function CourseDetailPage({
                         Watch Lesson
                       </a>
                     ) : (
-                      <p className="text-sm text-gray-500">Enroll to access this lesson</p>
+                      <p className="text-sm text-gray-500">
+                        Enroll to access this lesson
+                      </p>
                     )}
                   </ExpandableSection>
                 ))}
@@ -256,7 +275,11 @@ export default async function CourseDetailPage({
             </section>
 
             {/* Reviews */}
-            <ReviewSection courseId={course.id} reviews={course.reviews} isEnrolled={!!isEnrolled} />
+            <ReviewSection
+              courseId={course.id}
+              reviews={course.reviews}
+              isEnrolled={!!isEnrolled}
+            />
           </div>
 
           {/* Sidebar - Right Column */}
@@ -267,7 +290,9 @@ export default async function CourseDetailPage({
                 <CardContent className="p-0">
                   <CourseVideoPlayer
                     videoUrl={course.introVideoUrl}
-                    thumbnailUrl={course.thumbnailUrl || "/placeholder-course.jpg"}
+                    thumbnailUrl={
+                      course.thumbnailUrl || "/placeholder-course.jpg"
+                    }
                     title={course.title}
                   />
                 </CardContent>
@@ -282,41 +307,39 @@ export default async function CourseDetailPage({
                         <div className="text-4xl font-bold text-gray-900 mb-2">
                           ${course.price.toFixed(2)}
                         </div>
-                        <p className="text-sm text-gray-600 mb-6">One-time payment</p>
+                        <p className="text-sm text-gray-600 mb-6">
+                          One-time payment
+                        </p>
                       </>
                     ) : (
                       <>
-                        <div className="text-4xl font-bold text-gray-900 mb-2">Free</div>
-                        <p className="text-sm text-gray-600 mb-6">No credit card required</p>
+                        <div className="text-4xl font-bold text-gray-900 mb-2">
+                          Free
+                        </div>
+                        <p className="text-sm text-gray-600 mb-6">
+                          No credit card required
+                        </p>
                       </>
                     )}
-                    
+
                     <EnrollButton
                       courseId={course.id}
                       courseSlug={course.slug}
                       isEnrolled={!!isEnrolled}
-                      userId={session?.user.id}
+                      userId={userId ?? undefined}
                       price={course.price}
                       courseTitle={course.title}
                     />
-                    
+
                     {isEnrolled && (
-                      <Button
-                        variant="outline"
-                        className="w-full mt-3"
-                        asChild
-                      >
+                      <Button variant="outline" className="w-full mt-3" asChild>
                         <a href={`/courses/learn/${course.id}`}>
                           Continue Learning
                         </a>
                       </Button>
                     )}
 
-                    <Button
-                      variant="outline"
-                      className="w-full mt-3"
-                      size="sm"
-                    >
+                    <Button variant="outline" className="w-full mt-3" size="sm">
                       <Share2 className="mr-2 h-4 w-4" />
                       Share
                     </Button>
@@ -327,7 +350,9 @@ export default async function CourseDetailPage({
               {/* This course includes */}
               <Card className="shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-lg">This course includes</CardTitle>
+                  <CardTitle className="text-lg">
+                    This course includes
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-3 text-sm">
@@ -341,13 +366,17 @@ export default async function CourseDetailPage({
                   {course.difficulty && (
                     <div className="flex items-center space-x-3 text-sm">
                       <GraduationCap className="h-5 w-5 text-primary flex-shrink-0" />
-                      <span className="text-gray-700">{course.difficulty} Level</span>
+                      <span className="text-gray-700">
+                        {course.difficulty} Level
+                      </span>
                     </div>
                   )}
                   <div className="flex items-center space-x-3 text-sm">
                     <Clock className="h-5 w-5 text-primary flex-shrink-0" />
                     <span className="text-gray-700">
-                      Approx. {course.lessons.length} {course.lessons.length === 1 ? 'lesson' : 'lessons'} to complete
+                      Approx. {course.lessons.length}{" "}
+                      {course.lessons.length === 1 ? "lesson" : "lessons"} to
+                      complete
                     </span>
                   </div>
                   {course.language && (
@@ -376,7 +405,9 @@ export default async function CourseDetailPage({
                       />
                     )}
                     <div>
-                      <h3 className="font-semibold text-gray-900">{course.instructor.name}</h3>
+                      <h3 className="font-semibold text-gray-900">
+                        {course.instructor.name}
+                      </h3>
                       <p className="text-sm text-gray-600">Course Instructor</p>
                     </div>
                   </div>
@@ -387,6 +418,5 @@ export default async function CourseDetailPage({
         </div>
       </div>
     </div>
-  )
+  );
 }
-

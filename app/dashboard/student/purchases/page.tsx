@@ -1,12 +1,11 @@
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { CheckCircle2, Clock, XCircle, ExternalLink } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import { notFound } from "next/navigation"
+import { redirect, notFound } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { CheckCircle2, Clock, XCircle, ExternalLink } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
 async function getPurchases(userId: string) {
   try {
@@ -25,62 +24,68 @@ async function getPurchases(userId: string) {
         },
       },
       orderBy: { createdAt: "desc" },
-    })
+    });
 
-    return purchases
+    return purchases;
   } catch (error) {
-    console.error("Error fetching purchases:", error)
-    return []
+    console.error("Error fetching purchases:", error);
+    return [];
   }
 }
 
 export default async function PurchasesPage() {
-  const session = await getServerSession(authOptions)
+  const { userId } = await auth();
 
-  if (!session) {
-    notFound()
+  if (!userId) {
+    redirect("/");
   }
 
-  const purchases = await getPurchases(session.user.id)
+  const purchases = await getPurchases(userId);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "completed":
-        return <CheckCircle2 className="h-5 w-5 text-green-600" />
+        return <CheckCircle2 className="h-5 w-5 text-green-600" />;
       case "pending":
-        return <Clock className="h-5 w-5 text-yellow-600" />
+        return <Clock className="h-5 w-5 text-yellow-600" />;
       case "failed":
-        return <XCircle className="h-5 w-5 text-red-600" />
+        return <XCircle className="h-5 w-5 text-red-600" />;
       default:
-        return <Clock className="h-5 w-5 text-gray-600" />
+        return <Clock className="h-5 w-5 text-gray-600" />;
     }
-  }
+  };
 
   const getStatusText = (status: string) => {
     switch (status) {
       case "completed":
-        return "Completed"
+        return "Completed";
       case "pending":
-        return "Pending"
+        return "Pending";
       case "failed":
-        return "Failed"
+        return "Failed";
       default:
-        return status
+        return status;
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Purchases</h1>
-          <p className="text-gray-600">View all your course purchases and orders</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            My Purchases
+          </h1>
+          <p className="text-gray-600">
+            View all your course purchases and orders
+          </p>
         </div>
 
         {purchases.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
-              <p className="text-gray-600 mb-4">You haven't purchased any courses yet.</p>
+              <p className="text-gray-600 mb-4">
+                You haven't purchased any courses yet.
+              </p>
               <Button asChild>
                 <Link href="/courses">Browse Courses</Link>
               </Button>
@@ -89,7 +94,10 @@ export default async function PurchasesPage() {
         ) : (
           <div className="space-y-4">
             {purchases.map((purchase) => (
-              <Card key={purchase.id} className="hover:shadow-lg transition-shadow">
+              <Card
+                key={purchase.id}
+                className="hover:shadow-lg transition-shadow"
+              >
                 <CardContent className="p-6">
                   <div className="flex flex-col sm:flex-row gap-6">
                     {purchase.course.thumbnailUrl && (
@@ -118,12 +126,18 @@ export default async function PurchasesPage() {
                           </span>
                         </div>
                       </div>
-                      
+
                       <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
-                        <span>Amount: <strong className="text-gray-900">${purchase.amount.toFixed(2)}</strong></span>
+                        <span>
+                          Amount:{" "}
+                          <strong className="text-gray-900">
+                            ${purchase.amount.toFixed(2)}
+                          </strong>
+                        </span>
                         <span>•</span>
                         <span>
-                          Purchased: {new Date(purchase.createdAt).toLocaleDateString()}
+                          Purchased:{" "}
+                          {new Date(purchase.createdAt).toLocaleDateString()}
                         </span>
                       </div>
 
@@ -143,7 +157,9 @@ export default async function PurchasesPage() {
                         </div>
                       ) : (
                         <Button variant="outline" disabled>
-                          {purchase.status === "pending" ? "Payment Processing..." : "Payment Failed"}
+                          {purchase.status === "pending"
+                            ? "Payment Processing..."
+                            : "Payment Failed"}
                         </Button>
                       )}
                     </div>
@@ -155,6 +171,5 @@ export default async function PurchasesPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
-

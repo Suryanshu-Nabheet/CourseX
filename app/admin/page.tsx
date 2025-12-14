@@ -1,48 +1,63 @@
-import { redirect } from "next/navigation"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, BookOpen, TrendingUp, DollarSign } from "lucide-react"
+import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, BookOpen, TrendingUp, DollarSign } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 async function getAdminStats() {
   try {
-    const [totalUsers, totalCourses, totalEnrollments, totalRevenue] = await Promise.all([
-      prisma.user.count(),
-      prisma.course.count(),
-      prisma.enrollment.count(),
-      prisma.course.aggregate({
-        _sum: {
-          price: true,
-        },
-      }),
-    ])
+    const [totalUsers, totalCourses, totalEnrollments, totalRevenue] =
+      await Promise.all([
+        prisma.user.count(),
+        prisma.course.count(),
+        prisma.enrollment.count(),
+        prisma.course.aggregate({
+          _sum: {
+            price: true,
+          },
+        }),
+      ]);
 
     return {
       totalUsers,
       totalCourses,
       totalEnrollments,
       totalRevenue: totalRevenue._sum.price || 0,
-    }
+    };
   } catch (error) {
-    console.error("Error fetching admin stats:", error)
+    console.error("Error fetching admin stats:", error);
     return {
       totalUsers: 0,
       totalCourses: 0,
       totalEnrollments: 0,
       totalRevenue: 0,
-    }
+    };
   }
 }
 
 export default async function AdminDashboard() {
-  const session = await getServerSession(authOptions)
+  const { userId } = await auth();
 
-  if (!session || session.user.role !== "ADMIN") {
-    redirect("/dashboard/student")
+  if (!userId) {
+    redirect("/");
   }
 
-  const stats = await getAdminStats()
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  // Optional: Create user if missing or redirect to setup
+  if (!user) {
+    redirect("/");
+  }
+
+  if (user.role !== "ADMIN") {
+    redirect("/dashboard/student");
+  }
+
+  const stats = await getAdminStats();
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 sm:p-8 lg:p-12">
@@ -59,39 +74,53 @@ export default async function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalUsers}</div>
-              <p className="text-xs text-muted-foreground">All registered users</p>
+              <p className="text-xs text-muted-foreground">
+                All registered users
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Courses
+              </CardTitle>
               <BookOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalCourses}</div>
-              <p className="text-xs text-muted-foreground">Published and draft</p>
+              <p className="text-xs text-muted-foreground">
+                Published and draft
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Enrollments</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Enrollments
+              </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalEnrollments}</div>
-              <p className="text-xs text-muted-foreground">Course enrollments</p>
+              <p className="text-xs text-muted-foreground">
+                Course enrollments
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Revenue
+              </CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</div>
+              <div className="text-2xl font-bold">
+                ${stats.totalRevenue.toFixed(2)}
+              </div>
               <p className="text-xs text-muted-foreground">Platform revenue</p>
             </CardContent>
           </Card>
@@ -103,12 +132,12 @@ export default async function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <p className="text-gray-600">
-              Advanced admin features including user management, content moderation, and analytics will be available here.
+              Advanced admin features including user management, content
+              moderation, and analytics will be available here.
             </p>
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }
-

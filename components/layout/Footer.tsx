@@ -1,5 +1,5 @@
-import Link from "next/link"
-import { BookOpen } from "lucide-react"
+import Link from "next/link";
+import { BookOpen } from "lucide-react";
 
 export function Footer() {
   return (
@@ -12,36 +12,69 @@ export function Footer() {
               <span className="text-xl font-bold text-[#1E293B]">CourseX</span>
             </Link>
             <p className="text-sm text-gray-600">
-              Learn anything, anywhere, anytime. Join thousands of students learning from expert instructors.
+              Learn anything, anywhere, anytime. Join thousands of students
+              learning from expert instructors.
             </p>
           </div>
           <div>
             <h3 className="font-semibold mb-4">For Students</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li><Link href="/courses" className="hover:text-primary">Browse Courses</Link></li>
-              <li><Link href="/dashboard/student" className="hover:text-primary">My Courses</Link></li>
+              <li>
+                <Link href="/courses" className="hover:text-primary">
+                  Browse Courses
+                </Link>
+              </li>
+              <li>
+                <Link href="/dashboard/student" className="hover:text-primary">
+                  My Courses
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
             <h3 className="font-semibold mb-4">For Instructors</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li><Link href="/dashboard/instructor" className="hover:text-primary">Instructor Dashboard</Link></li>
-              <li><Link href="/dashboard/instructor/create" className="hover:text-primary">Create Course</Link></li>
+              <li>
+                <Link
+                  href="/dashboard/instructor"
+                  className="hover:text-primary"
+                >
+                  Instructor Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/dashboard/instructor/create"
+                  className="hover:text-primary"
+                >
+                  Create Course
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
             <h3 className="font-semibold mb-4">Company</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li><Link href="#" className="hover:text-primary">About</Link></li>
-              <li><Link href="#" className="hover:text-primary">Contact</Link></li>
+              <li>
+                <Link href="#" className="hover:text-primary">
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-primary">
+                  Contact
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
         <div className="mt-8 pt-8 border-t text-center text-sm text-gray-600">
-          <p>&copy; {new Date().getFullYear()} CourseX. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} Suryanshu Nabheet. All rights
+            reserved.
+          </p>
         </div>
       </div>
     </footer>
-  )
+  );
 }
-

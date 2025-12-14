@@ -1,13 +1,13 @@
-import { redirect } from "next/navigation"
-import { getSafeServerSession } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
-import { Sidebar } from "@/components/layout/Sidebar"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import Image from "next/image"
-import { Play, Clock, Award } from "lucide-react"
-import { EmptyState } from "@/components/shared/EmptyState"
+import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import Image from "next/image";
+import { Play, Clock, Award } from "lucide-react";
+import { EmptyState } from "@/components/shared/EmptyState";
 
 async function getEnrollments(userId: string) {
   try {
@@ -27,25 +27,34 @@ async function getEnrollments(userId: string) {
         },
       },
       orderBy: { updatedAt: "desc" },
-    })
+    });
   } catch (error) {
-    console.error("Error fetching enrollments:", error)
-    return []
+    console.error("Error fetching enrollments:", error);
+    return [];
   }
 }
 
 export default async function StudentDashboard() {
-  const session = await getSafeServerSession()
+  const { userId } = await auth();
 
-  if (!session) {
-    redirect("/auth/login")
+  if (!userId) {
+    redirect("/");
   }
 
-  if (session.user.role !== "STUDENT") {
-    redirect("/dashboard/instructor")
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  // Optional: Create user if missing or redirect to setup
+  if (!user) {
+    redirect("/");
   }
 
-  const enrollments = await getEnrollments(session.user.id)
+  if (user.role !== "STUDENT") {
+    redirect("/dashboard/instructor");
+  }
+
+  const enrollments = await getEnrollments(userId);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -68,11 +77,11 @@ export default async function StudentDashboard() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {enrollments.map((enrollment) => {
-              const course = enrollment.course
-              const totalLessons = course.lessons.length
+              const course = enrollment.course;
+              const totalLessons = course.lessons.length;
               const completedLessons = Math.floor(
                 (enrollment.progress / 100) * totalLessons
-              )
+              );
 
               return (
                 <Card key={enrollment.id} className="overflow-hidden">
@@ -85,7 +94,9 @@ export default async function StudentDashboard() {
                     />
                   </div>
                   <CardHeader>
-                    <CardTitle className="line-clamp-2">{course.title}</CardTitle>
+                    <CardTitle className="line-clamp-2">
+                      {course.title}
+                    </CardTitle>
                     <p className="text-sm text-gray-600">
                       By {course.instructor.name}
                     </p>
@@ -94,7 +105,9 @@ export default async function StudentDashboard() {
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Progress</span>
-                        <span className="font-medium">{enrollment.progress}%</span>
+                        <span className="font-medium">
+                          {enrollment.progress}%
+                        </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
@@ -138,12 +151,11 @@ export default async function StudentDashboard() {
                     </div>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
-

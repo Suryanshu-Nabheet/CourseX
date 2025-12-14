@@ -1,14 +1,27 @@
-import { redirect } from "next/navigation"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { Sidebar } from "@/components/layout/Sidebar"
-import { CreateCourseForm } from "@/components/courses/CreateCourseForm"
+import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { CreateCourseForm } from "@/components/courses/CreateCourseForm";
 
 export default async function CreateCoursePage() {
-  const session = await getServerSession(authOptions)
+  const { userId } = await auth();
 
-  if (!session || session.user.role !== "INSTRUCTOR") {
-    redirect("/auth/login")
+  if (!userId) {
+    redirect("/");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  // Optional: Create user if missing or redirect to setup
+  if (!user) {
+    redirect("/");
+  }
+
+  if (user.role !== "INSTRUCTOR") {
+    redirect("/dashboard/student");
   }
 
   return (
@@ -21,6 +34,5 @@ export default async function CreateCoursePage() {
         <CreateCourseForm />
       </div>
     </div>
-  )
+  );
 }
-

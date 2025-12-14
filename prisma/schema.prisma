@@ -6,28 +6,22 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-enum Role {
-  STUDENT
-  INSTRUCTOR
-  ADMIN
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
-  id            String       @id @default(cuid())
+  id            String       @id // Clerk User ID
   name          String
   email         String       @unique
-  emailVerified DateTime?
   image         String?
-  password      String?
-  role          Role         @default(STUDENT)
+  role          String       @default("STUDENT") // SQLite doesn't support enums
   courses       Course[]     @relation("InstructorCourses")
   enrollments   Enrollment[]
-  accounts      Account[]
-  sessions      Session[]
+  reviews       Review[]     // Added relation for Review
+  wishlists     Wishlist[]   // Added relation for Wishlist
+  payments      Payment[]    // Added relation for Payment
+  notes         Note[]       // Added relation for Note
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 }
@@ -36,7 +30,7 @@ model Course {
   id            String       @id @default(cuid())
   title         String
   slug          String       @unique
-  description   String       @db.Text
+  description   String
   category      String
   thumbnailUrl  String
   introVideoUrl String?
@@ -50,35 +44,49 @@ model Course {
   lessons       Lesson[]
   enrollments   Enrollment[]
   reviews       Review[]
+  wishlists     Wishlist[]   // Added relation for Wishlist
+  payments      Payment[]    // Added relation for Payment
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 }
 
 model Lesson {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   title       String
-  description String?  @db.Text
+  description String?
   videoUrl    String
   order       Int
   courseId    String
-  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  resources   String[] // Array of resource URLs
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  course      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  resources   Resource[]
+  notes       Note[]     // Added relation for Note
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   @@index([courseId])
 }
 
+model Resource {
+  id        String   @id @default(cuid())
+  url       String
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([lessonId])
+}
+
 model Enrollment {
-  id         String   @id @default(cuid())
-  studentId  String
-  courseId   String
-  progress   Int      @default(0) // Percentage 0-100
-  completed  Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  user       User     @relation(fields: [studentId], references: [id])
-  course     Course   @relation(fields: [courseId], references: [id])
+  id        String   @id @default(cuid())
+  studentId String
+  courseId  String
+  progress  Int      @default(0) // Percentage 0-100
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [studentId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
 
   @@unique([studentId, courseId])
   @@index([studentId])
@@ -88,12 +96,13 @@ model Enrollment {
 model Review {
   id        String   @id @default(cuid())
   rating    Int      // 1-5
-  comment   String?  @db.Text
+  comment   String?
   userId    String
   userName  String?
   userImage String?
   courseId  String
   course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -101,38 +110,47 @@ model Review {
   @@index([courseId])
 }
 
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Payment {
+  id              String   @id @default(cuid())
+  userId          String
+  courseId        String
+  paymentIntentId String   @unique
+  amount          Float
+  currency        String   @default("USD")
+  status          String   @default("pending") // pending, completed, failed
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id])
+  course          Course   @relation(fields: [courseId], references: [id])
+
+  @@index([userId])
+  @@index([courseId])
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+model Note {
+  id        String   @id @default(cuid())
+  userId    String
+  lessonId  String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
-  @@unique([identifier, token])
+  @@index([userId])
+  @@index([lessonId])
 }
-

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { syncUser } from "@/lib/user-sync";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,96 +9,29 @@ import Link from "next/link";
 import { BookOpen, Users, TrendingUp, Plus } from "lucide-react";
 import { EmptyState } from "@/components/shared/EmptyState";
 
-async function getInstructorStats(userId: string) {
-  try {
-    const courses = await prisma.course.findMany({
-      where: { instructorId: userId },
-      include: {
-        enrollments: true,
-        reviews: true,
-      },
-    });
-
-    const totalCourses = courses.length;
-    const publishedCourses = courses.filter((c) => c.published).length;
-    const totalEnrollments = courses.reduce(
-      (acc: number, c: any) => acc + c.enrollments.length,
-      0
-    );
-    const averageRating =
-      courses.length > 0
-        ? courses.reduce((acc: number, c: any) => {
-            const courseRating =
-              c.reviews.length > 0
-                ? c.reviews.reduce(
-                    (rAcc: number, r: any) => rAcc + r.rating,
-                    0
-                  ) / c.reviews.length
-                : 0;
-            return acc + courseRating;
-          }, 0) / courses.length
-        : 0;
-
-    return {
-      totalCourses,
-      publishedCourses,
-      totalEnrollments,
-      averageRating,
-    };
-  } catch (error) {
-    console.error("Error fetching instructor stats:", error);
-    return {
-      totalCourses: 0,
-      publishedCourses: 0,
-      totalEnrollments: 0,
-      averageRating: 0,
-    };
-  }
-}
-
-async function getRecentCourses(userId: string) {
-  try {
-    return await prisma.course.findMany({
-      where: { instructorId: userId },
-      include: {
-        enrollments: true,
-        reviews: true,
-      },
-      orderBy: { updatedAt: "desc" },
-      take: 5,
-    });
-  } catch (error) {
-    console.error("Error fetching recent courses:", error);
-    return [];
-  }
-}
+import { getInstructorStats, getRecentCourses } from "@/lib/dashboard-data";
 
 export default async function InstructorDashboard() {
-  const { userId } = await auth();
+  let user = await syncUser();
 
-  if (!userId) {
-    redirect("/");
+  // Auto-promote Student to Instructor on visiting this page
+  if (user.role === "STUDENT") {
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: { role: "INSTRUCTOR" },
+    });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
-
-  // Optional: Create user if missing or redirect to setup
-  if (!user) {
-    redirect("/");
-  }
-
-  if (user.role !== "INSTRUCTOR") {
+  if (user.role !== "INSTRUCTOR" && user.role !== "ADMIN") {
     redirect("/dashboard/student");
   }
 
-  const stats = await getInstructorStats(userId);
-  const recentCourses = await getRecentCourses(userId);
+  const stats = await getInstructorStats(user.id);
+  const recentCourses = await getRecentCourses(user.id);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar role="INSTRUCTOR" />
+      <Sidebar role="INSTRUCTOR" isAdmin={user.role === "ADMIN"} />
       <div className="flex-1 p-6 sm:p-8 lg:p-12">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">

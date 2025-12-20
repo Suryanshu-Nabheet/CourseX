@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { appConfig } from "@/lib/config";
 
 export async function GET(req: Request) {
   try {
@@ -61,21 +62,31 @@ export async function POST(req: Request) {
     }
 
     // Ensure user exists in local database
-    const dbUser = await prisma.user.findUnique({
+    let dbUser = await prisma.user.findUnique({
       where: { id: userId },
     });
 
     if (!dbUser) {
-      await prisma.user.create({
+      const email = user.emailAddresses[0].emailAddress;
+      dbUser = await prisma.user.create({
         data: {
           id: userId,
-          email: user.emailAddresses[0].emailAddress,
+          email: email,
           name:
             `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
             "Student",
           image: user.imageUrl,
-          role: "STUDENT",
+          role: email === appConfig.adminEmail ? "ADMIN" : "STUDENT",
         },
+      });
+    } else if (
+      user.emailAddresses[0].emailAddress === appConfig.adminEmail &&
+      dbUser.role !== "ADMIN"
+    ) {
+      // Auto-promote existing user if email matches
+      dbUser = await prisma.user.update({
+        where: { id: userId },
+        data: { role: "ADMIN" },
       });
     }
 

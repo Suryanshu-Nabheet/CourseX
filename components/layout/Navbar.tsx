@@ -4,17 +4,25 @@ import React, { Suspense } from "react";
 import Link from "next/link";
 import {
   UserButton,
-  SignInButton,
-  SignUpButton,
   SignedIn,
   SignedOut,
   ClerkLoaded,
+  useUser,
 } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { BookOpen, LayoutDashboard } from "lucide-react";
 import { SearchBar } from "@/components/shared/SearchBar";
 
+import { appConfig } from "@/lib/config";
+
 export function Navbar() {
+  const { user } = useUser();
+  const isAdmin =
+    user?.primaryEmailAddress?.emailAddress === appConfig.adminEmail;
+  const dashboardLink = isAdmin
+    ? appConfig.routes.adminDashboard
+    : appConfig.routes.studentDashboard;
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -41,7 +49,7 @@ export function Navbar() {
           <ClerkLoaded>
             <SignedIn>
               <div className="flex items-center space-x-4">
-                <Link href="/dashboard">
+                <Link href={dashboardLink}>
                   <Button
                     variant="outline"
                     className="flex items-center space-x-2"
@@ -56,12 +64,12 @@ export function Navbar() {
 
             <SignedOut>
               <div className="flex items-center space-x-2">
-                <SignInButton mode="modal">
+                <Link href={appConfig.routes.signIn}>
                   <Button variant="ghost">Sign In</Button>
-                </SignInButton>
-                <SignUpButton mode="modal">
+                </Link>
+                <Link href={appConfig.routes.signUp}>
                   <Button>Get Started</Button>
-                </SignUpButton>
+                </Link>
               </div>
             </SignedOut>
           </ClerkLoaded>

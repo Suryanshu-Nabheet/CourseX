@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { syncUser } from "@/lib/user-sync";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,56 +10,20 @@ import Image from "next/image";
 import { Play, Clock, Award } from "lucide-react";
 import { EmptyState } from "@/components/shared/EmptyState";
 
-async function getEnrollments(userId: string) {
-  try {
-    return await prisma.enrollment.findMany({
-      where: { studentId: userId },
-      include: {
-        course: {
-          include: {
-            instructor: {
-              select: {
-                name: true,
-                image: true,
-              },
-            },
-            lessons: true,
-          },
-        },
-      },
-      orderBy: { updatedAt: "desc" },
-    });
-  } catch (error) {
-    console.error("Error fetching enrollments:", error);
-    return [];
-  }
-}
+import { getStudentEnrollments } from "@/lib/dashboard-data";
 
 export default async function StudentDashboard() {
-  const { userId } = await auth();
+  const user = await syncUser();
 
-  if (!userId) {
-    redirect("/");
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
-
-  // Optional: Create user if missing or redirect to setup
-  if (!user) {
-    redirect("/");
-  }
-
-  if (user.role !== "STUDENT") {
+  if (user.role !== "STUDENT" && user.role !== "ADMIN") {
     redirect("/dashboard/instructor");
   }
 
-  const enrollments = await getEnrollments(userId);
+  const enrollments = await getStudentEnrollments(user.id);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar role="STUDENT" />
+      <Sidebar role="STUDENT" isAdmin={user.role === "ADMIN"} />
       <div className="flex-1 p-6 sm:p-8 lg:p-12">
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6 sm:mb-8">
           My Courses
@@ -76,7 +41,7 @@ export default async function StudentDashboard() {
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {enrollments.map((enrollment) => {
+            {enrollments.map((enrollment: any) => {
               const course = enrollment.course;
               const totalLessons = course.lessons.length;
               const completedLessons = Math.floor(

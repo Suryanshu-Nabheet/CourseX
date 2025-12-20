@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import React from "react"
-import Link from "next/link"
-import { cn } from "@/lib/utils"
-import createGlobe from "cobe"
-import { useEffect, useRef } from "react"
-import { motion } from "framer-motion"
-import { Play, GraduationCap, Award, Globe } from "lucide-react"
-import Image from "next/image"
+import React from "react";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import createGlobe from "cobe";
+import { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { Play, GraduationCap, Award, Globe } from "lucide-react";
+import Image from "next/image";
 
 export default function FeaturesSection() {
   const features = [
-      {
+    {
       title: "Interactive Learning Experience",
       description:
         "Engage with video lessons, quizzes, and hands-on projects. Track your progress and master new skills at your own pace.",
@@ -31,8 +31,7 @@ export default function FeaturesSection() {
       description:
         "Access your courses 24/7 from any device. Learn at your convenience, whether you're at home or on the go.",
       skeleton: <SkeletonThree />,
-      className:
-        "col-span-1 lg:col-span-3 lg:border-r dark:border-neutral-800",
+      className: "col-span-1 lg:col-span-3 lg:border-r dark:border-neutral-800",
     },
     {
       title: "Deploy Skills Globally",
@@ -41,7 +40,7 @@ export default function FeaturesSection() {
       skeleton: <SkeletonFour />,
       className: "col-span-1 lg:col-span-3 border-b lg:border-none",
     },
-  ]
+  ];
 
   return (
     <div className="relative z-20 py-10 lg:py-40 max-w-7xl mx-auto bg-white">
@@ -62,36 +61,43 @@ export default function FeaturesSection() {
             <FeatureCard key={feature.title} className={feature.className}>
               <FeatureTitle>{feature.title}</FeatureTitle>
               <FeatureDescription>{feature.description}</FeatureDescription>
-              <div className="flex-1 w-full mt-4 min-h-[500px]">{feature.skeleton}</div>
+              <div className="flex-1 w-full mt-4 min-h-[500px]">
+                {feature.skeleton}
+              </div>
             </FeatureCard>
           ))}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 const FeatureCard = ({
   children,
   className,
 }: {
-  children?: React.ReactNode
-  className?: string
+  children?: React.ReactNode;
+  className?: string;
 }) => {
   return (
-    <div className={cn(`p-4 sm:p-8 relative overflow-hidden flex flex-col`, className)}>
+    <div
+      className={cn(
+        `p-4 sm:p-8 relative overflow-hidden flex flex-col`,
+        className
+      )}
+    >
       {children}
     </div>
-  )
-}
+  );
+};
 
 const FeatureTitle = ({ children }: { children?: React.ReactNode }) => {
   return (
     <p className="max-w-5xl mx-auto text-left tracking-tight text-gray-900 text-xl md:text-2xl md:leading-snug">
       {children}
     </p>
-  )
-}
+  );
+};
 
 const FeatureDescription = ({ children }: { children?: React.ReactNode }) => {
   return (
@@ -104,8 +110,8 @@ const FeatureDescription = ({ children }: { children?: React.ReactNode }) => {
     >
       {children}
     </p>
-  )
-}
+  );
+};
 
 export const SkeletonOne = () => {
   return (
@@ -136,15 +142,12 @@ export const SkeletonOne = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export const SkeletonThree = () => {
   return (
-    <Link
-      href="/courses"
-      className="relative flex gap-10 h-full group/image"
-    >
+    <Link href="/courses" className="relative flex gap-10 h-full group/image">
       <div className="w-full mx-auto bg-transparent group h-full">
         <div className="flex flex-1 w-full h-full flex-col space-y-2 relative">
           <Play className="h-20 w-20 absolute z-10 inset-0 text-primary m-auto opacity-80" />
@@ -154,8 +157,8 @@ export const SkeletonThree = () => {
         </div>
       </div>
     </Link>
-  )
-}
+  );
+};
 
 export const SkeletonTwo = () => {
   const images = [
@@ -164,35 +167,39 @@ export const SkeletonTwo = () => {
     "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1000&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=1000&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=1000&auto=format&fit=crop",
-  ]
+  ];
 
-  // Fixed rotation values to prevent hydration mismatch (consistent between server and client)
-  const rotationsFirstRow = [-9.4, 1.6, -7.2, -3.9, -2.9]
-  const rotationsSecondRow = [2.5, -3.3, 1.2, -3.6, -1.7]
+  const rotationsFirstRow = [-9.4, 1.6, -7.2, -3.9, -2.9];
+  const rotationsSecondRow = [2.5, -3.3, 1.2, -3.6, -1.7];
 
   const imageVariants = {
+    initial: (rotation: number) => ({
+      rotate: rotation,
+      scale: 1,
+      zIndex: 1,
+    }),
     whileHover: {
       scale: 1.1,
       rotate: 0,
       zIndex: 100,
+      transition: { duration: 0.2 },
     },
     whileTap: {
       scale: 1.1,
       rotate: 0,
       zIndex: 100,
     },
-  }
+  };
 
   return (
     <div className="relative flex flex-col items-start p-8 gap-10 h-full overflow-hidden">
       <div className="flex flex-row -ml-20">
         {images.map((image, idx) => (
           <motion.div
-            variants={imageVariants}
             key={"images-first" + idx}
-            style={{
-              rotate: `${rotationsFirstRow[idx]}deg`,
-            }}
+            custom={rotationsFirstRow[idx]}
+            variants={imageVariants}
+            initial="initial"
             whileHover="whileHover"
             whileTap="whileTap"
             className="rounded-xl -mr-4 mt-4 p-1 bg-white border border-gray-100 shrink-0 overflow-hidden shadow-sm"
@@ -211,10 +218,9 @@ export const SkeletonTwo = () => {
         {images.map((image, idx) => (
           <motion.div
             key={"images-second" + idx}
-            style={{
-              rotate: `${rotationsSecondRow[idx]}deg`,
-            }}
+            custom={rotationsSecondRow[idx]}
             variants={imageVariants}
+            initial="initial"
             whileHover="whileHover"
             whileTap="whileTap"
             className="rounded-xl -mr-4 mt-4 p-1 bg-white border border-gray-100 shrink-0 overflow-hidden shadow-sm"
@@ -233,24 +239,24 @@ export const SkeletonTwo = () => {
       <div className="absolute left-0 z-[100] inset-y-0 w-20 bg-gradient-to-r from-white to-transparent h-full pointer-events-none" />
       <div className="absolute right-0 z-[100] inset-y-0 w-20 bg-gradient-to-l from-white to-transparent h-full pointer-events-none" />
     </div>
-  )
-}
+  );
+};
 
 export const SkeletonFour = () => {
   return (
     <div className="h-60 md:h-60 flex flex-col items-center relative bg-transparent mt-10">
       <GlobeComponent className="absolute -right-10 md:-right-10 -bottom-80 md:-bottom-72" />
     </div>
-  )
-}
+  );
+};
 
 const GlobeComponent = ({ className }: { className?: string }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    let phi = 0
+    let phi = 0;
 
-    if (!canvasRef.current) return
+    if (!canvasRef.current) return;
 
     const globe = createGlobe(canvasRef.current, {
       devicePixelRatio: 2,
@@ -276,15 +282,15 @@ const GlobeComponent = ({ className }: { className?: string }) => {
       onRender: (state) => {
         // Called on every animation frame.
         // `state` will be an empty object, return updated params.
-        state.phi = phi
-        phi += 0.01
+        state.phi = phi;
+        phi += 0.01;
       },
-    })
+    });
 
     return () => {
-      globe.destroy()
-    }
-  }, [])
+      globe.destroy();
+    };
+  }, []);
 
   return (
     <canvas
@@ -292,6 +298,5 @@ const GlobeComponent = ({ className }: { className?: string }) => {
       style={{ width: 600, height: 600, maxWidth: "100%", aspectRatio: 1 }}
       className={className}
     />
-  )
-}
-
+  );
+};

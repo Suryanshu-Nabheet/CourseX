@@ -167,11 +167,30 @@ export default async function LearnCoursePage({
     );
   }
 
+  // Fetch completed lessons for accurate state
+  const completedProgress = await prisma.lessonProgress.findMany({
+    where: {
+      userId,
+      lessonId: {
+        in: course.lessons.map((l: any) => l.id),
+      },
+      completed: true,
+    },
+    select: {
+      lessonId: true,
+    },
+  });
+
+  const completedLessonIds = completedProgress.map(
+    (p: { lessonId: string }) => p.lessonId
+  );
+
   return (
     <CoursePlayer
       course={course}
       currentLesson={currentLesson}
       allLessons={course.lessons}
+      initialCompletedLessons={completedLessonIds}
     />
   );
 }

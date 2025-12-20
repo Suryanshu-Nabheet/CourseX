@@ -18,6 +18,8 @@ import {
   FileText,
   Download,
   Award,
+  BookOpen,
+  FolderOpen,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -45,33 +47,23 @@ interface CoursePlayerProps {
   course: Course;
   currentLesson: Lesson;
   allLessons: Lesson[];
+  initialCompletedLessons?: string[];
 }
 
 export function CoursePlayer({
   course,
   currentLesson,
   allLessons,
+  initialCompletedLessons = [],
 }: CoursePlayerProps) {
   const router = useRouter();
-  const [completedLessons, setCompletedLessons] = useState<string[]>([]);
+  const [completedLessons, setCompletedLessons] = useState<string[]>(
+    initialCompletedLessons
+  );
   const [isCompleting, setIsCompleting] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  useEffect(() => {
-    const fetchCompletedLessons = async () => {
-      try {
-        const response = await fetch(`/api/enrollments?courseId=${course.id}`);
-        if (response.ok) {
-          const data = await response.json();
-          // In a real app, parse data to find completed lesson IDs
-          // For now, tracking locally or assuming API returns list in future
-        }
-      } catch (error) {
-        console.error("Failed to fetch completed lessons:", error);
-      }
-    };
-    fetchCompletedLessons();
-  }, [course.id]);
+  // Removed useEffect for fetching completed lessons as it is now passed from server
 
   const handleLessonComplete = async () => {
     if (isCompleting || completedLessons.includes(currentLesson.id)) return;
@@ -264,17 +256,19 @@ export function CoursePlayer({
 
             {/* Tabs (Overview & Resources) */}
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="w-full justify-start border-b border-gray-200 bg-transparent p-0 h-auto rounded-none mb-6 gap-6">
+              <TabsList className="bg-gray-100/50 p-1 rounded-lg w-full sm:w-auto inline-flex h-auto gap-1 mb-6">
                 <TabsTrigger
                   value="overview"
-                  className="rounded-none border-b-2 border-transparent px-2 py-3 text-gray-500 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent hover:text-gray-800 transition-none"
+                  className="rounded-md px-6 py-2.5 text-sm font-medium text-gray-500 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all flex items-center gap-2 flex-1 sm:flex-none justify-center"
                 >
+                  <BookOpen className="h-4 w-4" />
                   Overview
                 </TabsTrigger>
                 <TabsTrigger
                   value="resources"
-                  className="rounded-none border-b-2 border-transparent px-2 py-3 text-gray-500 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent hover:text-gray-800 transition-none"
+                  className="rounded-md px-6 py-2.5 text-sm font-medium text-gray-500 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all flex items-center gap-2 flex-1 sm:flex-none justify-center"
                 >
+                  <FolderOpen className="h-4 w-4" />
                   Resources
                 </TabsTrigger>
               </TabsList>

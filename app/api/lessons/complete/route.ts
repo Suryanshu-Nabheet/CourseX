@@ -56,23 +56,40 @@ export async function POST(req: Request) {
       );
     }
 
-    // Get or create lesson completion record
-    // Note: This assumes you have a LessonCompletion model. If not, we'll track via enrollment progress
+    // Create or update LessonProgress
+    await prisma.lessonProgress.upsert({
+      where: {
+        userId_lessonId: {
+          userId,
+          lessonId,
+        },
+      },
+      update: {
+        completed: true,
+      },
+      create: {
+        userId,
+        lessonId,
+        completed: true,
+      },
+    });
+
+    // Calculate total progress
     const totalLessons = enrollment.course.lessons.length;
+    const completedCount = await prisma.lessonProgress.count({
+      where: {
+        userId,
+        lessonId: {
+          in: enrollment.course.lessons.map((l: any) => l.id),
+        },
+        completed: true,
+      },
+    });
 
-    // Calculate progress: count completed lessons
-    // For now, we'll use a simple progress calculation
-    // In a production system, you'd have a LessonCompletion table to track individual lessons
-    const currentProgress = enrollment.progress || 0;
-    const progressPerLesson = totalLessons > 0 ? 100 / totalLessons : 0;
+    const newProgress =
+      totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
 
-    // Only increment if this is the first time completing this lesson
-    // In production, check LessonCompletion table
-    const newProgress = Math.min(
-      Math.ceil(currentProgress + progressPerLesson),
-      100
-    );
-
+    // Update enrollment
     await prisma.enrollment.update({
       where: {
         id: enrollment.id,

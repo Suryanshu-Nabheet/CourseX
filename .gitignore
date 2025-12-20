@@ -55,3 +55,6 @@ prisma/migrations/
 # OS
 Thumbs.db
 .DS_Store
+
+# clerk configuration (can include secrets)
+/.clerk/

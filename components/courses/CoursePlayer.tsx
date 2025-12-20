@@ -122,163 +122,180 @@ export function CoursePlayer({
   );
 
   return (
-    <div className="flex h-screen flex-col bg-gray-900 text-white overflow-hidden font-sans">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900">
       {/* Top Header */}
-      <header className="flex h-16 shrink-0 items-center justify-between border-b border-gray-800 bg-gray-900 px-4 shadow-md z-10">
+      <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-6 shadow-sm">
         <div className="flex items-center gap-4">
           <Link
             href={`/courses/${course.slug}`}
-            className="flex items-center text-gray-400 hover:text-white transition-colors"
+            className="flex items-center text-gray-500 hover:text-primary transition-colors hover:bg-gray-50 p-2 rounded-md"
           >
             <ChevronLeft className="h-5 w-5 mr-1" />
-            <span className="hidden sm:inline font-medium">Back to Course</span>
+            <span className="hidden sm:inline font-medium text-sm">
+              Back to Course
+            </span>
           </Link>
-          <div className="h-6 w-px bg-gray-700 mx-2 hidden sm:block" />
-          <h1 className="text-lg font-semibold truncate max-w-md hidden md:block">
+          <div className="h-6 w-px bg-gray-200 hidden sm:block" />
+          <h1 className="text-base font-semibold text-gray-800 truncate max-w-md hidden md:block">
             {course.title}
           </h1>
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Progress Circle or Bar */}
-          <div className="flex items-center gap-2 text-sm text-gray-400">
-            <div className="hidden sm:block">
-              <span className="text-white font-medium">{progress}%</span>{" "}
-              Complete
+          <div className="flex items-center gap-3 text-sm">
+            <div className="hidden sm:flex flex-col items-end mr-2">
+              <span className="text-xs text-gray-500 uppercase font-semibold tracking-wider">
+                Your Progress
+              </span>
+              <span className="font-bold text-gray-900">
+                {progress}% Completed
+              </span>
             </div>
-            <Award
-              className={cn(
-                "h-5 w-5",
-                progress === 100 ? "text-yellow-500" : "text-gray-600"
-              )}
-            />
+            <div className="relative h-10 w-10 flex items-center justify-center">
+              <svg
+                className="h-full w-full -rotate-90 text-gray-200"
+                viewBox="0 0 36 36"
+              >
+                <path
+                  className="fill-none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  strokeWidth="3"
+                  stroke="currentColor"
+                />
+                <path
+                  className={cn(
+                    "fill-none transition-all duration-1000 ease-out",
+                    progress === 100 ? "text-green-500" : "text-primary"
+                  )}
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  strokeDasharray={`${progress}, 100`}
+                  strokeWidth="3"
+                  stroke="currentColor"
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                {progress === 100 ? (
+                  <Award className="h-5 w-5 text-green-500" />
+                ) : (
+                  <span className="text-[10px] font-bold text-gray-700">
+                    {progress}%
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
 
           <Button
             variant="ghost"
             size="sm"
-            className="md:hidden text-white hover:bg-gray-800"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="lg:hidden text-gray-600 hover:bg-gray-100"
+            onClick={() => setSidebarOpen(true)}
           >
-            {sidebarOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
+            <Menu className="h-6 w-6" />
           </Button>
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Main Content Area */}
-        <main className="flex-1 flex flex-col min-w-0 bg-gray-50 overflow-y-auto relative scroll-smooth">
-          {/* Video Player Container */}
-          <div className="w-full bg-black aspect-video max-h-[75vh] flex items-center justify-center shadow-lg relative shrink-0">
-            {currentLesson.videoUrl ? (
-              <iframe
-                src={currentLesson.videoUrl}
-                className="w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center text-gray-500">
-                <Play className="h-20 w-20 mb-4 opacity-50" />
-                <p className="text-lg">Video Content Unavailable</p>
-              </div>
-            )}
-          </div>
+      <div className="flex-1 w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Main Content (Left: Video + Tabs) */}
+          <div className="lg:col-span-8 space-y-8">
+            {/* Video Player */}
+            <div className="w-full bg-black aspect-video rounded-xl overflow-hidden shadow-2xl relative group">
+              {currentLesson.videoUrl ? (
+                <iframe
+                  src={currentLesson.videoUrl}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-gray-900 text-gray-400">
+                  <Play className="h-16 w-16 mb-4 opacity-40" />
+                  <p className="font-medium text-lg">
+                    Video Content Unavailable
+                  </p>
+                </div>
+              )}
+            </div>
 
-          {/* Lesson Details & Tabs */}
-          <div className="flex-1 w-full max-w-5xl mx-auto p-6 md:p-8">
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-8 border-b border-gray-200 pb-6">
+            {/* Lesson Navigation & Actions */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4 border-b border-gray-200">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {currentLesson.title}
-                </h2>
-                <div className="flex items-center text-gray-500 text-sm">
-                  <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded text-xs font-semibold mr-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="bg-primary/10 text-primary text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide">
                     Lesson {currentLesson.order}
                   </span>
-                  <span>By {course.instructor.name}</span>
+                  <span className="text-gray-400 text-xs font-medium">
+                    Video Lesson
+                  </span>
                 </div>
+                <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+                  {currentLesson.title}
+                </h1>
               </div>
 
-              <div className="flex items-center gap-3 shrink-0">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
                 <Button
                   onClick={handleLessonComplete}
                   disabled={
                     isCompleting || completedLessons.includes(currentLesson.id)
                   }
+                  size="lg"
                   className={cn(
-                    "min-w-[160px] transition-all",
+                    "flex-1 sm:flex-none transition-all shadow-sm font-semibold",
                     completedLessons.includes(currentLesson.id)
-                      ? "bg-green-600 hover:bg-green-700 text-white"
-                      : ""
+                      ? "bg-green-600 hover:bg-green-700 text-white border-green-600"
+                      : "bg-primary text-white hover:bg-primary/90"
                   )}
                 >
                   {isCompleting ? (
                     "Updating..."
                   ) : completedLessons.includes(currentLesson.id) ? (
                     <>
-                      <CheckCircle2 className="mr-2 h-4 w-4" /> Completed
+                      <CheckCircle2 className="mr-2 h-5 w-5" /> Completed
                     </>
                   ) : (
                     "Mark as Complete"
                   )}
                 </Button>
-
-                <div className="flex gap-1">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={!prevLesson}
-                    onClick={() =>
-                      prevLesson &&
-                      router.push(
-                        `/courses/learn/${course.id}?lesson=${prevLesson.id}`
-                      )
-                    }
-                    className="text-gray-700 border-gray-300 hover:bg-gray-100"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={!nextLesson}
-                    onClick={() =>
-                      nextLesson &&
-                      router.push(
-                        `/courses/learn/${course.id}?lesson=${nextLesson.id}`
-                      )
-                    }
-                    className="text-gray-700 border-gray-300 hover:bg-gray-100"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
               </div>
             </div>
 
+            {/* Tabs (Overview & Resources) */}
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 md:w-[400px] mb-6">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="resources">Resources</TabsTrigger>
+              <TabsList className="w-full justify-start border-b border-gray-200 bg-transparent p-0 h-auto rounded-none mb-6 gap-6">
+                <TabsTrigger
+                  value="overview"
+                  className="rounded-none border-b-2 border-transparent px-2 py-3 text-gray-500 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent hover:text-gray-800 transition-none"
+                >
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger
+                  value="resources"
+                  className="rounded-none border-b-2 border-transparent px-2 py-3 text-gray-500 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent hover:text-gray-800 transition-none"
+                >
+                  Resources
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent
                 value="overview"
-                className="space-y-6 animate-in fade-in-50 duration-300"
+                className="animate-in fade-in-50 duration-300"
               >
-                <div className="prose max-w-none text-gray-700">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <div className="prose prose-gray max-w-none">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">
                     About this lesson
                   </h3>
-                  <p className="whitespace-pre-wrap leading-relaxed">
-                    {currentLesson.description ||
-                      "No description provided for this lesson."}
-                  </p>
+                  <div className="text-gray-600 leading-relaxed space-y-4">
+                    {currentLesson.description ? (
+                      <p>{currentLesson.description}</p>
+                    ) : (
+                      <p className="italic text-gray-400">
+                        No additional description provided.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </TabsContent>
 
@@ -286,19 +303,20 @@ export function CoursePlayer({
                 value="resources"
                 className="animate-in fade-in-50 duration-300"
               >
-                <div className="bg-white rounded-lg border border-gray-200 p-6 min-h-[200px]">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <Download className="mr-2 h-5 w-5 text-gray-500" />
-                    Downloadable Resources
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    Lesson Materials
                   </h3>
-
                   {!currentLesson.resources ||
                   currentLesson.resources.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500 italic">
-                      No resources attached to this lesson.
+                    <div className="bg-gray-50 border border-dashed border-gray-200 rounded-lg p-8 text-center">
+                      <FileText className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500 font-medium">
+                        No resources attached to this lesson.
+                      </p>
                     </div>
                   ) : (
-                    <ul className="space-y-3">
+                    <div className="grid gap-3">
                       {currentLesson.resources.map(
                         (resource: any, idx: number) => {
                           const url =
@@ -306,120 +324,221 @@ export function CoursePlayer({
                               ? resource
                               : resource.url;
                           return (
-                            <li key={idx}>
-                              <a
-                                href={url}
-                                target="_blank"
-                                rel="noopener"
-                                className="flex items-center p-3 rounded-md border border-gray-100 bg-gray-50 hover:bg-gray-100 hover:border-gray-300 transition-all group"
-                              >
-                                <div className="bg-white p-2 rounded shadow-sm group-hover:shadow mr-3">
-                                  <FileText className="h-5 w-5 text-primary" />
+                            <a
+                              key={idx}
+                              href={url}
+                              target="_blank"
+                              rel="noopener"
+                              className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md hover:border-primary/30 transition-all group"
+                            >
+                              <div className="flex items-center gap-4 overflow-hidden">
+                                <div className="h-10 w-10 rounded-lg bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                                  <FileText className="h-5 w-5" />
                                 </div>
-                                <div className="flex-1 overflow-hidden">
-                                  <p className="text-sm font-medium text-gray-900 truncate">
-                                    Resource {idx + 1}
+                                <div className="min-w-0">
+                                  <p className="font-semibold text-gray-900 truncate">
+                                    Resource File {idx + 1}
                                   </p>
                                   <p className="text-xs text-gray-500 truncate">
                                     {url}
                                   </p>
                                 </div>
-                                <Download className="h-4 w-4 text-gray-400 group-hover:text-primary ml-2" />
-                              </a>
-                            </li>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-gray-400 group-hover:text-primary"
+                              >
+                                <Download className="h-5 w-5" />
+                              </Button>
+                            </a>
                           );
                         }
                       )}
-                    </ul>
+                    </div>
                   )}
                 </div>
               </TabsContent>
             </Tabs>
           </div>
-        </main>
 
-        {/* Right Sidebar - Lesson List */}
-        <aside
-          className={cn(
-            "w-full md:w-80 lg:w-96 bg-white border-l border-gray-200 flex flex-col transition-all duration-300 ease-in-out absolute md:relative h-full z-20 shadow-xl md:shadow-none",
-            sidebarOpen
-              ? "translate-x-0"
-              : "translate-x-full md:translate-x-0 md:w-0 md:opacity-0 md:overflow-hidden"
-          )}
-        >
-          <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
-            <h3 className="font-bold text-gray-900">Course Content</h3>
-            {/* Mobile Close Button */}
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="md:hidden p-1 text-gray-500"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
+          {/* Sidebar (Right: Course Content) */}
+          <div className="lg:col-span-4">
+            <div className="sticky top-24 space-y-6">
+              {/* Desktop Sticky Sidebar */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hidden lg:block">
+                <div className="p-5 border-b border-gray-100 bg-gray-50/50">
+                  <h3 className="font-bold text-lg text-gray-900">
+                    Course Content
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {completedLessons.length} / {allLessons.length} lessons
+                    completed
+                  </p>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-2">
-            {allLessons.map((lesson, idx) => {
-              const isCompleted = completedLessons.includes(lesson.id);
-              const isActive = lesson.id === currentLesson.id;
+                  {/* Sidebar Progress Bar */}
+                  <div className="w-full bg-gray-200 rounded-full h-1.5 mt-3">
+                    <div
+                      className="bg-primary h-1.5 rounded-full transition-all duration-300"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                </div>
 
-              return (
-                <div
-                  key={lesson.id}
-                  id={`lesson-${lesson.id}`}
-                  onClick={() => {
-                    router.push(
-                      `/courses/learn/${course.id}?lesson=${lesson.id}`
+                <div className="max-h-[calc(100vh-250px)] overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+                  {allLessons.map((lesson, idx) => {
+                    const isCompleted = completedLessons.includes(lesson.id);
+                    const isActive = lesson.id === currentLesson.id;
+                    return (
+                      <div
+                        key={lesson.id}
+                        onClick={() =>
+                          router.push(
+                            `/courses/learn/${course.id}?lesson=${lesson.id}`
+                          )
+                        }
+                        className={cn(
+                          "group flex items-start gap-3 p-3 rounded-lg cursor-pointer mb-1 transition-all",
+                          isActive
+                            ? "bg-primary text-white shadow-md ring-1 ring-primary"
+                            : "hover:bg-gray-50 text-gray-700"
+                        )}
+                      >
+                        <div className="mt-0.5 shrink-0">
+                          {isCompleted && !isActive ? (
+                            <CheckCircle2 className="h-5 w-5 text-green-500" />
+                          ) : isActive ? (
+                            <Play className="h-5 w-5 fill-current" />
+                          ) : (
+                            <Circle className="h-5 w-5 text-gray-300" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p
+                            className={cn(
+                              "text-sm font-medium leading-snug",
+                              isActive
+                                ? "text-white"
+                                : "text-gray-900 group-hover:text-primary"
+                            )}
+                          >
+                            {lesson.title}
+                          </p>
+                          <span
+                            className={cn(
+                              "text-xs opacity-80 block mt-1",
+                              isActive ? "text-white/80" : "text-gray-500"
+                            )}
+                          >
+                            Lesson {idx + 1}
+                          </span>
+                        </div>
+                      </div>
                     );
-                    if (window.innerWidth < 768) setSidebarOpen(false);
-                  }}
-                  className={cn(
-                    "group flex items-start p-3 rounded-lg cursor-pointer transition-all border",
-                    isActive
-                      ? "bg-primary/5 border-primary/20 shadow-sm"
-                      : "bg-white border-transparent hover:bg-gray-50 hover:border-gray-200"
-                  )}
-                >
-                  <div className="mr-3 mt-0.5">
-                    {isActive ? (
-                      isCompleted ? (
-                        <div className="text-green-600 bg-green-100 rounded-full p-0.5">
-                          <CheckCircle2 className="h-4 w-4" />
-                        </div>
-                      ) : (
-                        <div className="text-primary bg-primary/10 rounded-full p-0.5 animate-pulse">
-                          <Play className="h-4 w-4 fill-current" />
-                        </div>
-                      )
-                    ) : isCompleted ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  })}
+                </div>
+              </div>
+
+              {/* Instructor Card (Optional improvement) */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hidden lg:block">
+                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">
+                  Instructor
+                </h4>
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-full bg-gray-100 overflow-hidden border border-gray-200 relative">
+                    {course.instructor.image ? (
+                      <img
+                        src={course.instructor.image}
+                        alt={course.instructor.name}
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
-                      <div className="h-5 w-5 border-2 border-gray-300 rounded-full flex items-center justify-center text-[10px] font-medium text-gray-400">
-                        {idx + 1}
+                      <div className="h-full w-full flex items-center justify-center bg-primary text-white font-bold text-xl">
+                        {course.instructor.name?.[0] || "I"}
                       </div>
                     )}
                   </div>
-
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className={cn(
-                        "text-sm font-medium leading-tight mb-1",
-                        isActive ? "text-primary" : "text-gray-700"
-                      )}
-                    >
-                      {lesson.title}
+                  <div>
+                    <p className="font-bold text-gray-900">
+                      {course.instructor.name}
                     </p>
-                    <div className="flex items-center text-xs text-gray-500 gap-2">
-                      <span>Lesson {idx + 1}</span>
-                      {/* Add duration here if available in future */}
-                    </div>
+                    <p className="text-xs text-gray-500">Course Creator</p>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            </div>
           </div>
-        </aside>
+        </div>
       </div>
+
+      {/* Mobile Drawer Sidebar */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden ease-in-out duration-300">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setSidebarOpen(false)}
+          />
+          <div className="absolute right-0 top-0 bottom-0 w-[80%] max-w-sm bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+              <h3 className="font-bold text-lg text-gray-900">
+                Course Content
+              </h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+              {allLessons.map((lesson, idx) => {
+                const isCompleted = completedLessons.includes(lesson.id);
+                const isActive = lesson.id === currentLesson.id;
+                return (
+                  <div
+                    key={lesson.id}
+                    onClick={() => {
+                      router.push(
+                        `/courses/learn/${course.id}?lesson=${lesson.id}`
+                      );
+                      setSidebarOpen(false);
+                    }}
+                    className={cn(
+                      "flex items-center gap-3 p-3 rounded-lg cursor-pointer mb-2 transition-all border",
+                      isActive
+                        ? "bg-primary/5 border-primary text-primary"
+                        : "bg-white border-transparent hover:bg-gray-50 hover:border-gray-200 text-gray-700"
+                    )}
+                  >
+                    <div className="shrink-0">
+                      {isCompleted ? (
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      ) : isActive ? (
+                        <div className="h-5 w-5 rounded-full border-2 border-primary flex items-center justify-center">
+                          <div className="h-2 w-2 rounded-full bg-primary" />
+                        </div>
+                      ) : (
+                        <div className="h-5 w-5 rounded-full border-2 border-gray-300 flex items-center justify-center text-[10px] text-gray-500 font-bold">
+                          {idx + 1}
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {lesson.title}
+                      </p>
+                      <span className="text-xs text-gray-500">
+                        Lesson {idx + 1}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

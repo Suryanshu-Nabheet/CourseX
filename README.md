@@ -9,13 +9,13 @@
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Seed the database
-npm run db:seed
+pnpm db:seed
 
 # Start development server
-npm run dev
+pnpm dev
 ```
 
 Visit `http://localhost:3000` to see the application.
@@ -55,26 +55,20 @@ Visit `http://localhost:3000` to see the application.
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
-- **Database**: Local JSON Storage (Prisma-ready for PostgreSQL)
-- **Authentication**: NextAuth.js
+- **Database**: SQLite (via Prisma ORM)
+- **Authentication**: Clerk
 - **Payments**: Stripe
 - **UI Components**: Radix UI + Custom Components
 - **Animations**: Framer Motion
 
 ## 📚 Documentation
 
-All documentation is organized in the [`docs/`](./docs/) folder:
+## 📚 Documentation
 
-- **[Quick Start Guide](./docs/QUICK_START.md)** - Get started in 5 minutes
-- **[Database Setup](./docs/DATABASE_SETUP.md)** - Database configuration guide
-- **[Architecture](./docs/ARCHITECTURE.md)** - System architecture details
-- **[Project Structure](./docs/STRUCTURE.md)** - Directory structure guide
-- **[Production Readiness](./docs/PRODUCTION_READINESS.md)** - Production deployment checklist
-- **[Deployment Guide](./docs/DEPLOYMENT.md)** - Step-by-step deployment instructions
-- **[Improvements Plan](./docs/IMPROVEMENTS_PLAN.md)** - Feature roadmap and improvements
-- **[Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions
-- **[Contributing](./docs/CONTRIBUTING.md)** - Contribution guidelines
-- **[Changelog](./docs/CHANGELOG.md)** - Version history
+The following documentation files are available in the project root:
+
+- **[Contributing](./CONTRIBUTING.md)** - Guidelines for contributing
+- **[Production Readiness](./PRODUCTION_READINESS.md)** - Deployment checklist
 
 ## 📁 Project Structure
 
@@ -116,11 +110,11 @@ After running `npm run db:seed`:
 ## 📦 Available Scripts
 
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
-npm run lint         # Run ESLint
-npm run db:seed      # Seed local database
+pnpm dev          # Start development server
+pnpm build        # Build for production
+pnpm start        # Start production server
+pnpm lint         # Run ESLint
+pnpm db:seed      # Seed local database
 ```
 
 ## 🔧 Environment Variables
@@ -128,17 +122,14 @@ npm run db:seed      # Seed local database
 Create a `.env` file in the root directory:
 
 ```env
-NEXTAUTH_SECRET=your-secret-key-here
-NEXTAUTH_URL=http://localhost:3000
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
 
-# Optional: For Google OAuth
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-
-# Optional: For Stripe payments (production)
-STRIPE_SECRET_KEY=sk_test_...
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
+
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 ## 🚢 Deployment

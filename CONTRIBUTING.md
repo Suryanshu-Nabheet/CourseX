@@ -20,10 +20,10 @@ Be respectful, inclusive, and constructive in all interactions.
 
 1. Fork the repository
 2. Clone your fork: `git clone <your-fork-url>`
-3. Install dependencies: `npm install`
+3. Install dependencies: `pnpm install`
 4. Create a branch: `git checkout -b feature/your-feature-name`
 5. Make your changes
-6. Test your changes: `npm run build`
+6. Test your changes: `pnpm build`
 7. Commit and push: `git push origin feature/your-feature-name`
 8. Open a Pull Request
 
@@ -43,44 +43,49 @@ See [docs/STRUCTURE.md](../docs/STRUCTURE.md) for detailed documentation.
 ## 📝 Coding Standards
 
 ### TypeScript
+
 - Use TypeScript for all new files
 - Avoid `any` types when possible
 - Use proper type definitions in `types/` directory
 
 ### Components
+
 - Use functional components with hooks
 - Add `"use client"` directive for client components
 - Keep components focused and single-purpose
 - Export from feature folders using `index.ts` (barrel exports)
 
 ### Styling
+
 - Use Tailwind CSS for styling
 - Follow existing design patterns
 - Ensure responsive design (mobile-first)
 - Use semantic HTML
 
 ### File Naming
+
 - Components: `PascalCase.tsx`
 - Utilities: `camelCase.ts`
 - Constants: `UPPER_SNAKE_CASE` or `camelCase.ts`
 
 ### Imports
+
 ```typescript
 // ✅ Good - Feature-based imports
-import { CourseCard, EnrollButton } from "@/components/courses"
-import { Navbar, Footer } from "@/components/layout"
+import { CourseCard, EnrollButton } from "@/components/courses";
+import { Navbar, Footer } from "@/components/layout";
 
 // ❌ Avoid - Direct file imports
-import { CourseCard } from "@/components/courses/CourseCard"
+import { CourseCard } from "@/components/courses/CourseCard";
 ```
 
 ## 🔄 Development Workflow
 
 1. **Create a feature branch** from `main`
 2. **Make changes** following coding standards
-3. **Test locally**: `npm run dev`
-4. **Build check**: `npm run build`
-5. **Lint check**: `npm run lint`
+3. **Test locally**: `pnpm dev`
+4. **Build check**: `pnpm build`
+5. **Lint check**: `pnpm lint`
 6. **Commit** with clear messages
 7. **Push** to your fork
 8. **Create PR** with description
@@ -93,7 +98,7 @@ import { CourseCard } from "@/components/courses/CourseCard"
 2. Create component file: `NewComponent.tsx`
 3. Add export to `index.ts`:
    ```typescript
-   export { NewComponent } from "./NewComponent"
+   export { NewComponent } from "./NewComponent";
    ```
 4. Update imports in consuming files
 

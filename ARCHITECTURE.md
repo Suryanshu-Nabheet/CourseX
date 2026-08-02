@@ -1,10 +1,10 @@
 # CourseX Architecture Documentation
 
-## 🏛️ System Architecture
+## System Architecture
 
 CourseX follows a **feature-based, modular architecture** designed for scalability and maintainability.
 
-## 📐 Architecture Principles
+## Architecture Principles
 
 ### 1. **Feature-Based Organization**
 Components and logic are organized by feature/domain rather than by technical layer:
@@ -37,7 +37,7 @@ components/
 - Single Responsibility Principle
 - DRY (Don't Repeat Yourself)
 
-## 🗂️ Directory Structure Details
+## Directory Structure Details
 
 ### `/app` - Next.js App Router
 
@@ -141,7 +141,7 @@ JSON files for local data persistence:
 
 - `seed-local.ts` - Database seeding script
 
-## 🔄 Data Flow
+## Data Flow
 
 ### Request Flow
 
@@ -168,7 +168,7 @@ JSON files for local data persistence:
 5. Data returned to component
 6. Component renders UI
 
-## 🎯 Design Patterns
+## Design Patterns
 
 ### 1. **Server/Client Component Split**
 
@@ -209,7 +209,7 @@ export async function POST(
 )
 ```
 
-## 🔐 Security Considerations
+## Security Considerations
 
 ### Authentication
 - Password hashing with bcryptjs
@@ -227,7 +227,7 @@ export async function POST(
 - Server-side data fetching
 - Proper error handling
 
-## 🚀 Performance Optimizations
+## Performance Optimizations
 
 ### Code Splitting
 - Automatic with Next.js App Router
@@ -242,7 +242,7 @@ export async function POST(
 - Static generation where possible
 - Server-side caching for data
 
-## 📦 Scalability Considerations
+## Scalability Considerations
 
 ### Adding New Features
 
@@ -270,7 +270,7 @@ When moving from local storage to real database:
 - **Type everything**: Use TypeScript properly
 - **Document complex logic**: Add comments for clarity
 
-## 🔍 Testing Strategy
+## Testing Strategy
 
 ### Unit Tests (Future)
 - Component tests with React Testing Library
@@ -282,7 +282,7 @@ When moving from local storage to real database:
 - Database integration
 - Authentication flows
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [Next.js Documentation](https://nextjs.org/docs)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)

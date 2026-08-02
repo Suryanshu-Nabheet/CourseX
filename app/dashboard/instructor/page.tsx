@@ -147,7 +147,7 @@ export default async function InstructorDashboard() {
                         <div className="flex items-center space-x-4 text-sm text-gray-600">
                           <span>{course.enrollments.length} enrollments</span>
                           <span>{course.reviews.length} reviews</span>
-                          {rating > 0 && <span>⭐ {rating.toFixed(1)}</span>}
+                          {rating > 0 && <span>{rating.toFixed(1)}</span>}
                         </div>
                       </div>
                       <Link href={`/dashboard/instructor/edit/${course.id}`}>

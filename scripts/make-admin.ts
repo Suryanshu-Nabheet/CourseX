@@ -27,7 +27,7 @@ async function main() {
     data: { role: "ADMIN" },
   });
 
-  console.log(`✅ User ${updated.email} is now an ${updated.role}!`);
+  console.log(`User ${updated.email} is now an ${updated.role}!`);
 }
 
 main()

@@ -85,7 +85,7 @@ export function CoursePlayer({
 
         if (data.completed) {
           toast.success(
-            "Course Completed! 🎉",
+            "Course Completed!",
             "Congratulations on finishing the course!"
           );
           setTimeout(() => {

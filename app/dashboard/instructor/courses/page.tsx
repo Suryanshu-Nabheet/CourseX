@@ -120,7 +120,7 @@ export default async function InstructorCoursesPage() {
                       <div>
                         {rating > 0 && (
                           <span className="text-yellow-600">
-                            ⭐ {rating.toFixed(1)}
+                            {rating.toFixed(1)}
                           </span>
                         )}
                         <span className="text-gray-600 ml-2">

@@ -102,7 +102,7 @@ const coursesData = [
 ];
 
 async function main() {
-  console.log("🌱 Seeding local database...");
+  console.log("Seeding local database...");
 
   // Clear existing data
   await prisma.review.deleteMany();
@@ -177,7 +177,7 @@ async function main() {
     console.log(`Created course: ${course.title}`);
   }
 
-  console.log("✅ Seeding completed!");
+  console.log("Seeding completed!");
 }
 
 main()

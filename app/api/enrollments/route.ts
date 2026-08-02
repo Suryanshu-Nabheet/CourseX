@@ -166,7 +166,7 @@ export async function POST(req: Request) {
     });
 
     console.log(
-      `✅ Enrollment created: ${enrollment.id} for user ${userId} in course ${courseId}`
+      `Enrollment created: ${enrollment.id} for user ${userId} in course ${courseId}`
     );
 
     return NextResponse.json(enrollment, { status: 201 });

@@ -35,7 +35,7 @@ async function getCourse(courseId: string, userId: string, retryCount = 0) {
 
     if (enrollment?.course) {
       console.log(
-        `✅ Enrollment found for user ${userId} in course ${courseId}`
+        `Enrollment found for user ${userId} in course ${courseId}`
       );
       return (enrollment as any).course;
     }
@@ -43,7 +43,7 @@ async function getCourse(courseId: string, userId: string, retryCount = 0) {
     // Retry once if enrollment not found (might be a race condition)
     if (retryCount === 0) {
       console.log(
-        `⏳ Enrollment not found, retrying... (courseId: ${courseId}, userId: ${userId})`
+        `Enrollment not found, retrying... (courseId: ${courseId}, userId: ${userId})`
       );
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
       return getCourse(courseId, userId, 1);
@@ -62,7 +62,7 @@ async function getCourse(courseId: string, userId: string, retryCount = 0) {
     // If course exists but no enrollment, return course info for redirect
     if (course) {
       console.warn(
-        `⚠️ Course ${courseId} exists but user ${userId} is not enrolled (after retry)`
+        `Course ${courseId} exists but user ${userId} is not enrolled (after retry)`
       );
       return { redirectTo: `/courses/${course.slug}`, courseSlug: course.slug };
     }
@@ -95,13 +95,13 @@ export default async function LearnCoursePage({
   }
 
   console.log(
-    `🔍 Checking enrollment for courseId: ${courseId}, userId: ${userId}`
+    `Checking enrollment for courseId: ${courseId}, userId: ${userId}`
   );
 
   const courseData = await getCourse(courseId, userId);
 
   console.log(
-    `📊 Course data result:`,
+    `Course data result:`,
     courseData
       ? courseData.redirectTo
         ? "Redirect needed"

@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to CourseX! This document provides guidelines and instructions for contributing.
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
@@ -12,11 +12,11 @@ Thank you for your interest in contributing to CourseX! This document provides g
 - [Commit Guidelines](#commit-guidelines)
 - [Pull Request Process](#pull-request-process)
 
-## 🤝 Code of Conduct
+## Code of Conduct
 
 Be respectful, inclusive, and constructive in all interactions.
 
-## 🚀 Getting Started
+## Getting Started
 
 1. Fork the repository
 2. Clone your fork: `git clone <your-fork-url>`
@@ -27,7 +27,7 @@ Be respectful, inclusive, and constructive in all interactions.
 7. Commit and push: `git push origin feature/your-feature-name`
 8. Open a Pull Request
 
-## 🏗️ Project Structure
+## Project Structure
 
 The project follows a **feature-based architecture**:
 
@@ -40,7 +40,7 @@ The project follows a **feature-based architecture**:
 
 See [docs/STRUCTURE.md](../docs/STRUCTURE.md) for detailed documentation.
 
-## 📝 Coding Standards
+## Coding Standards
 
 ### TypeScript
 
@@ -71,15 +71,15 @@ See [docs/STRUCTURE.md](../docs/STRUCTURE.md) for detailed documentation.
 ### Imports
 
 ```typescript
-// ✅ Good - Feature-based imports
+// Good - Feature-based imports
 import { CourseCard, EnrollButton } from "@/components/courses";
 import { Navbar, Footer } from "@/components/layout";
 
-// ❌ Avoid - Direct file imports
+// Avoid - Direct file imports
 import { CourseCard } from "@/components/courses/CourseCard";
 ```
 
-## 🔄 Development Workflow
+## Development Workflow
 
 1. **Create a feature branch** from `main`
 2. **Make changes** following coding standards
@@ -90,7 +90,7 @@ import { CourseCard } from "@/components/courses/CourseCard";
 7. **Push** to your fork
 8. **Create PR** with description
 
-## 📦 Adding New Features
+## Adding New Features
 
 ### Adding a New Component
 
@@ -116,7 +116,7 @@ import { CourseCard } from "@/components/courses/CourseCard";
 3. Add error handling
 4. Return appropriate status codes
 
-## 💬 Commit Guidelines
+## Commit Guidelines
 
 Use conventional commit messages:
 
@@ -130,7 +130,7 @@ test: Add tests for CourseCard component
 chore: Update dependencies
 ```
 
-## 🔍 Pull Request Process
+## Pull Request Process
 
 1. **Title**: Clear, descriptive title
 2. **Description**: Explain what and why
@@ -147,7 +147,7 @@ chore: Update dependencies
 - [ ] Documentation updated (if needed)
 - [ ] Changes are backward compatible (if applicable)
 
-## 🐛 Reporting Issues
+## Reporting Issues
 
 1. Check existing issues first
 2. Use issue templates
@@ -155,17 +155,17 @@ chore: Update dependencies
 4. Include relevant logs/screenshots
 5. Specify environment details
 
-## 📚 Resources
+## Resources
 
 - [Next.js Documentation](https://nextjs.org/docs)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [Tailwind CSS](https://tailwindcss.com/docs)
 - [Project Structure](./docs/STRUCTURE.md)
 
-## ❓ Questions?
+## Questions?
 
 Open an issue or discussion for questions about contributing.
 
 ---
 
-Thank you for contributing to CourseX! 🎉
+Thank you for contributing to CourseX!

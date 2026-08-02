@@ -4,9 +4,9 @@ All notable changes to CourseX will be documented in this file.
 
 ## [1.0.0] - 2024-10-31
 
-### 🎉 Major Restructuring
+### Major Restructuring
 
-#### ✨ Added
+#### Added
 - **Feature-based component organization**: Components now organized by domain (landing, courses, dashboard, layout, shared)
 - **Barrel exports**: Clean imports using `index.ts` files in each feature folder
 - **Comprehensive documentation**: 
@@ -15,7 +15,7 @@ All notable changes to CourseX will be documented in this file.
   - `docs/CONTRIBUTING.md` - Contribution guidelines
   - Updated `README.md` with improved organization
 
-#### 🔄 Changed
+#### Changed
 - **Component organization**: Moved all components to feature-based folders
   - Landing page components → `components/landing/`
   - Course components → `components/courses/`
@@ -26,13 +26,13 @@ All notable changes to CourseX will be documented in this file.
 - **Updated all import paths** to reflect new structure
 - **Fixed TypeScript type errors** throughout the codebase
 
-#### 🐛 Fixed
+#### Fixed
 - Type inference issues in API routes
 - ESLint warnings (apostrophes, quotes)
 - Next.js Link component usage
 - Import path errors after reorganization
 
-#### 📚 Documentation
+#### Documentation
 - Added comprehensive structure documentation
 - Created architecture documentation
 - Added contribution guidelines

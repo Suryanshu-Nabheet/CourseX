@@ -5,7 +5,7 @@
   <p>Designed for scalability, maintainability, and an exceptional developer experience</p>
 </div>
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # Install dependencies
@@ -20,9 +20,9 @@ pnpm dev
 
 Visit `http://localhost:3000` to see the application.
 
-## ✨ Features
+## Features
 
-### 🎓 For Students
+### For Students
 
 - Browse and search courses with advanced filtering
 - Purchase courses with secure Stripe payments
@@ -32,7 +32,7 @@ Visit `http://localhost:3000` to see the application.
 - Wishlist functionality
 - Purchase history and certificates
 
-### 👨‍🏫 For Instructors
+### For Instructors
 
 - Create and manage courses with rich content
 - Set pricing and sell courses
@@ -41,7 +41,7 @@ Visit `http://localhost:3000` to see the application.
 - Export course data
 - Comprehensive dashboard
 
-### 🏢 Platform Features
+### Platform Features
 
 - Role-based authentication (Student/Instructor/Admin)
 - Google OAuth + Email/Password login
@@ -50,7 +50,7 @@ Visit `http://localhost:3000` to see the application.
 - Revenue tracking and splits
 - Local JSON storage (no database setup required for development)
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
@@ -61,16 +61,14 @@ Visit `http://localhost:3000` to see the application.
 - **UI Components**: Radix UI + Custom Components
 - **Animations**: Framer Motion
 
-## 📚 Documentation
-
-## 📚 Documentation
+## Documentation
 
 The following documentation files are available in the project root:
 
 - **[Contributing](./CONTRIBUTING.md)** - Guidelines for contributing
 - **[Production Readiness](./PRODUCTION_READINESS.md)** - Deployment checklist
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 LMS/
@@ -90,11 +88,11 @@ LMS/
 │   ├── data/              # Data layer (local storage)
 │   ├── email/             # Email notifications
 │   └── payments/          # Payment processing
-├── docs/                  # 📚 All documentation
+├── docs/                  # All documentation
 └── data/                  # JSON data files
 ```
 
-## 🎯 Sample Accounts
+## Sample Accounts
 
 After running `npm run db:seed`:
 
@@ -107,7 +105,7 @@ After running `npm run db:seed`:
 - Email: `john@example.com` / Password: `password123`
 - Email: `jane@example.com` / Password: `password123`
 
-## 📦 Available Scripts
+## Available Scripts
 
 ```bash
 pnpm dev          # Start development server
@@ -117,7 +115,7 @@ pnpm lint         # Run ESLint
 pnpm db:seed      # Seed local database
 ```
 
-## 🔧 Environment Variables
+## Environment Variables
 
 Create a `.env` file in the root directory:
 
@@ -132,7 +130,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-## 🚢 Deployment
+## Deployment
 
 ### Vercel (Recommended)
 
@@ -143,18 +141,16 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 See [Production Readiness Guide](./docs/PRODUCTION_READINESS.md) for detailed deployment instructions.
 
-## 🤝 Contributing
+## Contributing
 
 See [Contributing Guidelines](./docs/CONTRIBUTING.md) for details on how to contribute.
 
-## 📄 License
+## License
 
 MIT License - feel free to use this project for learning and building your own LMS!
-
-## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-**Made with ❤️ by Suryanshu Nabheet**
+**Made by Suryanshu Nabheet**
